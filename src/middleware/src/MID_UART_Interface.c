@@ -34,7 +34,7 @@ static void LPUART_PinConfig(void)
 
     const PortConfig_t  PortConfigLPUART =
     {
-        .Mux         =  PORT_MUX_ALT5,                    /* Configure the pin mux mode as LPUART       */
+        .Mux         =  PORT_MUX_ALT2,                    /* Configure the pin mux mode as LPUART       */
         .Interrupt   =  PORT_INT_DISABLED,                /* Disable interrupt for the pin              */
         .Pull        =  PORT_INTERNAL_PULL_NOT_ENABLED    /* Disable internal pull resistor for the pin */
     };
@@ -78,4 +78,24 @@ void MID_UART_Init(void)
 void MID_UART_RegisterNotificationCallback(void (*cb_ptr)(void))
 {
     DRV_LPUART_RegisterIntCallback(USR_INSTANCE, cb_ptr);
+}
+
+uint8_t MID_UART_ReceiveData(void)
+{
+    return DRV_LPUART_ReceiveChar(USR_INSTANCE);
+}
+
+void MID_UART_SendData(uint8_t Data)
+{
+    DRV_LPUART_SendChar(USR_INSTANCE, Data);
+}
+
+uint8_t MID_UART_GetCommingMessageEvent(void)
+{
+    return DRV_GetReceiveITStatus(USR_INSTANCE);
+}
+
+uint8_t MID_UART_GetSendingMessageEvent(void)
+{
+    return DRV_GetTransmitITStatus(USR_INSTANCE);
 }

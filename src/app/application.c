@@ -34,16 +34,16 @@ static void App_UARTNotification(void);
 int main(void)
 {
     MID_Clock_Init();
-//    MID_CAN_Init();
-//    MID_Timer_Init();
+    MID_CAN_Init();
+    MID_Timer_Init();
     MID_UART_Init();
 
-//    MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
-//    MID_CAN_RegisterBusOffNotificationCallback(App_CANBusOffNotification);
+    MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
+    MID_CAN_RegisterBusOffNotificationCallback(App_CANBusOffNotification);
     MID_UART_RegisterNotificationCallback(&App_UARTNotification);
 
     MID_EnableNotification();
-//    MID_Timer_StartTimer();
+    MID_Timer_StartTimer();
 
     while(1)
     {
@@ -65,5 +65,6 @@ static void App_CANBusOffNotification(void)
 
 static void App_UARTNotification(void)
 {
-
+    if()
+    DRV_LPUART_SendChar(1, 'B');
 }

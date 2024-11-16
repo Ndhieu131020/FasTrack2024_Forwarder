@@ -474,6 +474,36 @@ uint8_t DRV_LPUART_ReceiveChar(const uint8_t instance)
 }
 
 /**
+  * @brief  Get empty state of transmit data register (Transmit Interrupt)
+  * @param[in] instance: The LPUART instance to use for transmission
+  * @retval IT status (0: DISABLE 1: ENABLE)
+  */
+uint8_t DRV_GetTransmitITStatus(const uint8_t instance)
+{
+    /* Get LPUART base address */
+    LPUART_Type *base = g_LPUARTBase[instance];
+
+    uint32_t regVal = base->STAT;
+
+    return ((regVal & LPUART_STAT_TDRE_MASK) >> LPUART_STAT_TDRE_SHIFT);
+}
+
+/**
+  * @brief  Get full state of receive data register (Transmit Interrupt)
+  * @param[in] instance: The LPUART instance to use for transmission
+  * @retval IT status (0: DISABLE 1: ENABLE)
+  */
+uint8_t DRV_GetReceiveITStatus(const uint8_t instance)
+{
+    /* Get LPUART base address */
+    LPUART_Type *base = g_LPUARTBase[instance];
+
+    uint32_t regVal = base->STAT;
+
+    return ((regVal & LPUART_STAT_RDRF_MASK) >> LPUART_STAT_RDRF_SHIFT);
+}
+
+/**
   * @brief  Registers an interrupt callback function for the specified LPUART peripheral.
   * @param[in] instance: The LPUART instance to use for transmission
   * @param[in] fp:       The function pointer to the callback function that will handle the interrupt.
