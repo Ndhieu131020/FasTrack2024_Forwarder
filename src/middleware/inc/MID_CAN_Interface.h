@@ -15,29 +15,73 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
+
 #define FLEXCAN_INSTANCE        0u
 
-#define RX_MSG_CONNECTION_ID    0xE0
-#define RX_MSG_STOPOPR_ID       0x30
+/** @defgroup Check Connection Message ID
+  * @{
+  */
+#define TX_RQ_CONNECT_DISTANCE_NODE_ID    0xE0
+#define TX_RQ_CONNECT_ROTATION_NODE_ID    0xF0
 
-#define TX_MSG_CONFIRM_CONNECTION_ID    0xE1
-#define TX_MSG_CONFIRM_CONNECTION_DATA  0xFF
+#define RX_CONFIRM_FROM_DISTANCE_NODE_ID  0xE1
+#define RX_CONFIRM_FROM_ROTATION_NODE_ID  0xF1
 
-#define TX_MSG_DISTANCE_DATA_ID       0x20
+#define TX_STOPOPR_DISTANCE_NODE_ID       0x30
+#define TX_STOPOPR_ROTATION_NODE_ID       0x31
 
-#define TX_DISTANCE_DATA_MB        0u
-#define TX_CONFIRM_CONNECTION_MB   1u
+/** @defgroup Check Connection Message Data
+  * @{
+  */
+#define TX_MSG_CONFIRM_CONNECTION_DATA    0xFF
 
-#define RX_STOPOPR_MB      4u
-#define RX_CONNECTION_MB   5u
+/** @defgroup Data Message
+  * @{
+  */
+#define RX_DISTANCE_DATA_ID  0x20
+#define RX_ROTATION_DATA_ID  0x10
 
+#define TX_CONFIRM_ROTATION_DATA_ID  0x11
+#define TX_CONFIRM_DISTANCE_DATA_ID  0x21
+
+/** @defgroup Allocate Tx mailboxs
+  * @{
+  */
+#define TX_CONFIRM_DISTANCE_DATA_MB      0u
+#define TX_CONFIRM_ROTATION_DATA_MB      1u
+
+#define TX_RQ_CONNECT_DISTANCE_NODE_MB   2u
+#define TX_RQ_CONNECT_ROTATION_NODE_MB   3u
+
+#define TX_STOPOPR_DISTANCE_NODE_MB      4u
+#define TX_STOPOPR_ROTATION_NODE_MB      5u
+
+/** @defgroup Allocate Rx mailboxs
+  * @{
+  */
+#define RX_DISTANCE_DATA_MB                 10u
+#define RX_ROTATION_DATA_MB                 11u
+
+#define RX_CONFIRM_FROM_DISTANCE_NODE_MB    12u
+#define RX_CONFIRM_FROM_ROTATION_NODE_MB    13u
+
+/** @defgroup New comming message state
+  * @{
+  */
 #define CAN_MSG_RECEIVED      1u
 #define CAN_MSG_NO_RECEIVED   0u
 
+/** @defgroup Filter ID register mask
+  * @{
+  */
+#define GMASK_FILTER_ALL_ID     0x1FFFFFFF
+#define IMASK_FILTER_ALL_ID     0xFFFFFFFF
+
+/* Comming Message Struct */
 typedef struct MID_CAN_Interface
 {
-    uint32_t ID;
-    uint32_t Data;
+    uint32_t ID;        /* ID of message, it can be a value of @defgroup *_ID */
+    uint32_t Data;      /* Data of message, it can be a value of @defgroup *_DATA */
 }Data_Typedef;
 
 /*******************************************************************************

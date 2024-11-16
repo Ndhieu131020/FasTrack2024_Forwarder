@@ -12,22 +12,27 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
+#define RELOAD_PERIOD_MS   100u
+#define MS_TO_SECOND       1000u
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
 void Timer_Notification(void);
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-uint32_t LPIT_Freq = 0u;
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 void MID_Timer_Init(void)
 {
+    uint32_t reloadValue = 0u;
+    uint32_t LPIT_Freq   = 0u;
+
     LPIT_InitTypedef LPIT_InitStructure;
 
     DRV_LPIT_EnableModule(LPIT_INSTANCE);
@@ -42,8 +47,16 @@ void MID_Timer_Init(void)
 
     DRV_Clock_GetFrequency(LPIT0_CLK, &LPIT_Freq);
 
-    DRV_LPIT_SetReloadValue(LPIT_INSTANCE, LPIT_CH0, 400);
+    if (LPIT_Freq != 0U)
+    {
+        reloadValue = (LPIT_Freq * RELOAD_PERIOD_MS) / MS_TO_SECOND;
+    }
+    else
+    {
+        /* Error */
+    }
 
+    DRV_LPIT_SetReloadValue(LPIT_INSTANCE, LPIT_CH0, reloadValue);
 }
 
 void MID_Timer_RegisterNotificationCallback(void (*cb_ptr)(void))

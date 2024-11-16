@@ -10,6 +10,8 @@
 #include "MID_Notification_Manager.h"
 #include "MID_Timer_Interface.h"
 #include "MID_CAN_Interface.h"
+#include "MID_UART_Interface.h"
+#include "DRV_S32K144_LPUART.h"
 
 /*******************************************************************************
  * Definition
@@ -18,8 +20,9 @@
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-void App_ReceiveMessageNotification(void);
-void App_BusOffNotification(void);
+static void App_CANReceiveNotification(void);
+static void App_CANBusOffNotification(void);
+static void App_UARTNotification(void);
 
 /*******************************************************************************
  * Variables
@@ -31,30 +34,36 @@ void App_BusOffNotification(void);
 int main(void)
 {
     MID_Clock_Init();
-    MID_CAN_Init();
-    MID_Timer_Init();
+//    MID_CAN_Init();
+//    MID_Timer_Init();
+    MID_UART_Init();
 
-    MID_CAN_RegisterRxNotificationCallback(&App_ReceiveMessageNotification);
-    MID_CAN_RegisterBusOffNotificationCallback(&App_BusOffNotification);
+//    MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
+//    MID_CAN_RegisterBusOffNotificationCallback(App_CANBusOffNotification);
+    MID_UART_RegisterNotificationCallback(&App_UARTNotification);
 
     MID_EnableNotification();
-
-    MID_Timer_StartTimer();
+//    MID_Timer_StartTimer();
 
     while(1)
     {
-
+        DRV_LPUART_SendChar(1, 'A');
     }
 
     return 0;
 }
 
-void App_ReceiveMessageNotification(void)
+static void App_CANReceiveNotification(void)
 {
-    
+
 }
 
-void App_BusOffNotification(void)
+static void App_CANBusOffNotification(void)
+{
+
+}
+
+static void App_UARTNotification(void)
 {
 
 }
