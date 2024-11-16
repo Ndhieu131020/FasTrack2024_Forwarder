@@ -4,10 +4,10 @@
  *  Created on: 11-16-2024
  *      Author: Ndhieu131020@gmail.com
 */
-#include "MID_UART_Interface.h"
 #include "DRV_S32K144_PORT.h"
 #include "DRV_S32K144_MCU.h"
 #include "DRV_S32K144_LPUART.h"
+#include "MID_UART_Interface.h"
 
 /*******************************************************************************
  * Definition

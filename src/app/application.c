@@ -11,7 +11,6 @@
 #include "MID_Timer_Interface.h"
 #include "MID_CAN_Interface.h"
 #include "MID_UART_Interface.h"
-#include "DRV_S32K144_LPUART.h"
 
 /*******************************************************************************
  * Definition
@@ -27,7 +26,7 @@ static void App_UARTNotification(void);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-
+uint8_t data = 0u;
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -47,7 +46,7 @@ int main(void)
 
     while(1)
     {
-        DRV_LPUART_SendChar(1, 'A');
+        MID_UART_SendData('A');
     }
 
     return 0;
@@ -65,6 +64,13 @@ static void App_CANBusOffNotification(void)
 
 static void App_UARTNotification(void)
 {
-    if()
-    DRV_LPUART_SendChar(1, 'B');
+    if(MID_UART_GetCommingMessageEvent())
+    {
+        data = MID_UART_ReceiveData();
+    }
+
+    if(MID_UART_GetSendingMessageEvent())
+    {
+        MID_UART_SendData('B');
+    }
 }
