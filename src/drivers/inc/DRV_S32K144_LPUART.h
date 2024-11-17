@@ -7,11 +7,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "S32K144.h"
+#include "S32K144_features.h"
 #include "common_typedef.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Enum: LPUART instance */
+typedef enum
+{
+    LPUART0 = 0U,    /* Low Power Universal Asynchronous Receiver/Transmitter 0  */
+    LPUART1 = 1U,    /* Low Power Universal Asynchronous Receiver/Transmitter 1  */
+    LPUART2 = 2U     /* Low Power Universal Asynchronous Receiver/Transmitter 2  */
+} lpuart_instance;
 
 /* Enum: number of bits in a character */
 typedef enum
@@ -69,8 +78,7 @@ typedef struct
   * @param [in] lpuartClkFreq: The clock frequency of the LPUART module
   * @return: None
   */
-void DRV_LPUART_Init(const uint8_t instance, const lpuart_config_t * pConfig,
-                 const uint32_t lpuartClkFreq);
+void DRV_LPUART_Init(const uint8_t instance, const lpuart_config_t * pConfig);
 
 /**
   * @brief: Deinitialize the LPUART module
@@ -84,14 +92,14 @@ void DRV_LPUART_DeInit(const uint8_t instance);
   * @param [in] instance: The LPUART instance to use for transmission
   * @retval None
   */
-void HAL_LPUART_DisableTransmit(const uint8_t instance);
+void DRV_LPUART_DisableTransmit(const uint8_t instance);
 
 /**
   * @brief  Enable transmitter & receiver
   * @param [in] instance: The LPUART instance to use for transmission
   * @retval None
   */
-void HAL_LPUART_EnableTransmit(const uint8_t instance);
+void DRV_LPUART_EnableTransmit(const uint8_t instance);
 
 /**
   * @brief: Transmit a single character via LPUART
@@ -116,6 +124,14 @@ void DRV_LPUART_SendString(const uint8_t instance, uint8_t *Data, uint8_t d_leng
   * @retval Received data
   */
 uint8_t DRV_LPUART_ReceiveChar(const uint8_t instance);
+
+/**
+  * @brief  Control transmit interrupt
+  * @param[in] instance: The LPUART instance to use for transmission
+  * @param[in] enable:   Enable or disable transmit interrupt
+  * @retval None
+  */
+void DRV_LPUART_SetTransmitITStatus(const uint8_t instance, bool enable);
 
 /**
   * @brief  Get empty state of transmit data register (Transmit Interrupt)
@@ -144,4 +160,3 @@ void DRV_LPUART_RegisterIntCallback(const uint8_t instance, IRQ_FuncCallback fp)
 /*******************************************************************************
  * End Of File
  ******************************************************************************/
-

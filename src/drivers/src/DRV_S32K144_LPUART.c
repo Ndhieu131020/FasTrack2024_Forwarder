@@ -1,7 +1,9 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
+
 #include "DRV_S32K144_LPUART.h"
+#include "DRV_S32K144_MCU.h"
 
 /*******************************************************************************
  * Definitions
@@ -25,14 +27,14 @@
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-static void LPUART_SetBitPerChar(LPUART_Type *base, const lpuart_data_bits_t numberDataBits);
-static void LPUART_SetParityMode(LPUART_Type *base, const lpuart_parity_mode_t parityMode);
-static void LPUART_setTransmitDataInversion(LPUART_Type *base, const bool isTransmitDataInverted);
-static void LPUART_setReceiveDataInversion(LPUART_Type *base, const bool isreceiveDataInverted);
-static void LPUART_setBitOrder(LPUART_Type *base, const lpuart_bit_order_t bitOrder);
-static void LPUART_setStopBit(LPUART_Type *base, const lpuart_stop_bit_t stopBit);
-static void LPUART_SetBaudRate(LPUART_Type *base, const uint32_t baudRate, const uint32_t lpuartClkFreq);
-static void LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInterruptEnabled, \
+static void DRV_LPUART_SetBitPerChar(LPUART_Type *base, const lpuart_data_bits_t numberDataBits);
+static void DRV_LPUART_SetParityMode(LPUART_Type *base, const lpuart_parity_mode_t parityMode);
+static void DRV_LPUART_setTransmitDataInversion(LPUART_Type *base, const bool isTransmitDataInverted);
+static void DRV_LPUART_setReceiveDataInversion(LPUART_Type *base, const bool isreceiveDataInverted);
+static void DRV_LPUART_setBitOrder(LPUART_Type *base, const lpuart_bit_order_t bitOrder);
+static void DRV_LPUART_setStopBit(LPUART_Type *base, const lpuart_stop_bit_t stopBit);
+static void DRV_LPUART_SetBaudRate(LPUART_Type *base, const uint32_t baudRate, const uint32_t lpuartClkFreq);
+static void DRV_LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInterruptEnabled, \
                                     const bool isReceiveInterruptEnabled);
 
 /*******************************************************************************
@@ -40,7 +42,10 @@ static void LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInte
  ******************************************************************************/
 
 /* Array LPUART address base */
-static LPUART_Type *g_LPUARTBase[LPUART_INSTANCE_COUNT] = IP_LPUART_BASE_PTRS;
+static LPUART_Type * const g_LPUARTBase[LPUART_INSTANCE_COUNT] = IP_LPUART_BASE_PTRS;
+
+/* Array LPUART clock names */
+static const clock_names_t g_LPUARTClkNames[LPUART_INSTANCE_COUNT] = LPUART_CLOCK_NAMES;
 
 /* Array of function pointers for LPUART interrupt handlers */
 static IRQ_FuncCallback LPUART_IRQ_Fp[LPUART_INSTANCE_COUNT] = {NULL};
@@ -56,42 +61,51 @@ static IRQ_FuncCallback LPUART_IRQ_Fp[LPUART_INSTANCE_COUNT] = {NULL};
   * @param [in] lpuartClkFreq: The clock frequency of the LPUART module
   * @return: None
   */
-void DRV_LPUART_Init(const uint8_t instance, const lpuart_config_t * pConfig, \
-                     const uint32_t lpuartClkFreq)
+void DRV_LPUART_Init(const uint8_t instance, const lpuart_config_t * pConfig)
 {
-    /* Get LPUART base address */
-    LPUART_Type *base = g_LPUARTBase[instance];
+    uint32_t      lpuartClkFreq = 0U;
+    LPUART_Type * base          = g_LPUARTBase[instance];
+    clock_names_t lpuartClkName = g_LPUARTClkNames[instance];
 
-    /* Disable TX, RX to configure the LPUART module */
-    base->CTRL &= ~(LPUART_CTRL_TE_MASK | LPUART_CTRL_RE_MASK);
+    DRV_Clock_GetFrequency(lpuartClkName, &lpuartClkFreq);
 
-    /* Set the number of bits per character for LPUART communication */
-    LPUART_SetBitPerChar(base, pConfig->numberDataBits);
+    if (lpuartClkFreq != 0U)
+    {
+        /* Disable TX, RX to configure the LPUART module */
+        base->CTRL &= ~(LPUART_CTRL_TE_MASK | LPUART_CTRL_RE_MASK);
 
-    /* Set the parity mode for LPUART communication */
-    LPUART_SetParityMode(base, pConfig->parityMode);
+        /* Set the number of bits per character for LPUART communication */
+        DRV_LPUART_SetBitPerChar(base, pConfig->numberDataBits);
 
-    /* Configure whether the transmit data is inverted or not */
-    LPUART_setTransmitDataInversion(base, pConfig->transmitDataInverted);
+        /* Set the parity mode for LPUART communication */
+        DRV_LPUART_SetParityMode(base, pConfig->parityMode);
 
-    /* Configure whether the receive data is inverted or not */
-    LPUART_setReceiveDataInversion(base, pConfig->receiveDataInverted);
+        /* Configure whether the transmit data is inverted or not */
+        DRV_LPUART_setTransmitDataInversion(base, pConfig->transmitDataInverted);
 
-    /* Set the bit order for LPUART communication */
-    LPUART_setBitOrder(base, pConfig->bitOrder);
+        /* Configure whether the receive data is inverted or not */
+        DRV_LPUART_setReceiveDataInversion(base, pConfig->receiveDataInverted);
 
-    /* Set the number of stop bits for LPUART communication */
-    LPUART_setStopBit(base, pConfig->stopBit);
+        /* Set the bit order for LPUART communication */
+        DRV_LPUART_setBitOrder(base, pConfig->bitOrder);
 
-    /* Configure the LPUART baud rate */
-    LPUART_SetBaudRate(base, pConfig->baudRate, lpuartClkFreq);
+        /* Set the number of stop bits for LPUART communication */
+        DRV_LPUART_setStopBit(base, pConfig->stopBit);
 
-    /* Configure the LPUART transmit and receive interrupts */
-    LPUART_SetRxTxInterrupt(base, pConfig->enableTransmitInterrupt,
-                                         pConfig->enableReceiveInterrupt);
+        /* Configure the LPUART baud rate */
+        DRV_LPUART_SetBaudRate(base, pConfig->baudRate, lpuartClkFreq);
 
-    /* Enable TX, RX */
-    base->CTRL |= (LPUART_CTRL_TE_MASK | LPUART_CTRL_RE_MASK);
+        /* Configure the LPUART transmit and receive interrupts */
+        DRV_LPUART_SetRxTxInterrupt(base, pConfig->enableTransmitInterrupt,
+                                            pConfig->enableReceiveInterrupt);
+
+        /* Enable TX, RX */
+        base->CTRL |= (LPUART_CTRL_TE_MASK | LPUART_CTRL_RE_MASK);
+    }
+    else
+    {
+        /* Current LPUART instance is clock gated off */
+    }
 }
 
 /**
@@ -121,7 +135,7 @@ void DRV_LPUART_DeInit(const uint8_t instance)
   * @param [in] numberDataBits: Number of data bits per character (7, 8, 9, or 10 bits)
   * @return: None
   */
-static void LPUART_SetBitPerChar(LPUART_Type * base, const lpuart_data_bits_t numberDataBits)
+static void DRV_LPUART_SetBitPerChar(LPUART_Type * base, const lpuart_data_bits_t numberDataBits)
 {
     switch(numberDataBits)
     {
@@ -170,7 +184,7 @@ static void LPUART_SetBitPerChar(LPUART_Type * base, const lpuart_data_bits_t nu
   * @param [in] parityMode:   Parity mode to be set (Disabled, Even, or Odd)
   * @return: None
   */
-static void LPUART_SetParityMode(LPUART_Type * base, const lpuart_parity_mode_t parityMode)
+static void DRV_LPUART_SetParityMode(LPUART_Type * base, const lpuart_parity_mode_t parityMode)
 {
     switch(parityMode)
     {
@@ -204,7 +218,7 @@ static void LPUART_SetParityMode(LPUART_Type * base, const lpuart_parity_mode_t 
   * @param [in] isTransmitDataInverted:  Boolean value indicating whether transmit data is inverted or not
   * @return: None
   */
-static void LPUART_setTransmitDataInversion(LPUART_Type * base, const bool isTransmitDataInverted)
+static void DRV_LPUART_setTransmitDataInversion(LPUART_Type * base, const bool isTransmitDataInverted)
 {
     if(isTransmitDataInverted)
     {
@@ -222,7 +236,7 @@ static void LPUART_setTransmitDataInversion(LPUART_Type * base, const bool isTra
   * @param [in] isReceiveDataInverted: Boolean value indicating whether receive data is inverted or not
   * @return: None
   */
-static void LPUART_setReceiveDataInversion(LPUART_Type * base, const bool isreceiveDataInverted)
+static void DRV_LPUART_setReceiveDataInversion(LPUART_Type * base, const bool isreceiveDataInverted)
 {
     if(isreceiveDataInverted)
     {
@@ -240,7 +254,7 @@ static void LPUART_setReceiveDataInversion(LPUART_Type * base, const bool isrece
   * @param [in] bitOrder:  Bit order to be set (LSB first or MSB first)
   * @return: None
   */
-static void LPUART_setBitOrder(LPUART_Type * base, const lpuart_bit_order_t bitOrder)
+static void DRV_LPUART_setBitOrder(LPUART_Type * base, const lpuart_bit_order_t bitOrder)
 {
     base->STAT = (base->STAT & (~LPUART_STAT_MSBF_MASK)) | LPUART_STAT_MSBF(bitOrder);
 }
@@ -251,7 +265,7 @@ static void LPUART_setBitOrder(LPUART_Type * base, const lpuart_bit_order_t bitO
   * @param [in] stopBit:  Number of stop bits to be set
   * @return: None
   */
-static void LPUART_setStopBit(LPUART_Type * base, const lpuart_stop_bit_t stopBit)
+static void DRV_LPUART_setStopBit(LPUART_Type * base, const lpuart_stop_bit_t stopBit)
 {
     base->BAUD = (base->BAUD & (~LPUART_BAUD_SBNS_MASK)) | LPUART_BAUD_SBNS(stopBit);
 }
@@ -263,7 +277,7 @@ static void LPUART_setStopBit(LPUART_Type * base, const lpuart_stop_bit_t stopBi
   * @param [in] lpuartClkFreq: Frequency of the LPUART clock source
   * @return: None
   */
-static void LPUART_SetBaudRate(LPUART_Type * base, const uint32_t baudRate, const uint32_t lpuartClkFreq)
+static void DRV_LPUART_SetBaudRate(LPUART_Type * base, const uint32_t baudRate, const uint32_t lpuartClkFreq)
 {
     uint8_t  OSR_final                 = OSR_MIN;          /* Final value for OSR                                            */
     uint8_t  OSR_tmp                   = OSR_MIN;          /* Temporary value for OSR                                        */
@@ -274,7 +288,7 @@ static void LPUART_SetBaudRate(LPUART_Type * base, const uint32_t baudRate, cons
     uint32_t BaudRate_tmp2             = 0U;               /* Temporary value for calculated baud rate with rounded-up SBR   */
     uint32_t BaudRate_difference_final = 0U;               /* Final difference between desired and calculated baud rates     */
     uint32_t BaudRate_difference_tmp   = 0U;               /* Temporary difference between desired and calculated baud rates */
-    uint32_t BAUD_Register_tmp         = base->BAUD;       /* Temporary storage for the BAUD register value */
+    uint32_t BAUD_Register_tmp         = base->BAUD;       /* Temporary storage for the BAUD register value                  */
 
     /* Calculate initial SBR */
     SBR_final = (uint16_t)(lpuartClkFreq / (baudRate * OSR_final));
@@ -387,7 +401,7 @@ static void LPUART_SetBaudRate(LPUART_Type * base, const uint32_t baudRate, cons
   * @param [in] isReceiveInterruptEnabled:    Flag to enable or disable receive interrupts
   * @return: None
   */
-static void LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInterruptEnabled,
+static void DRV_LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInterruptEnabled,
                                     const bool isReceiveInterruptEnabled)
 {
     base->CTRL = (base->CTRL & (~(LPUART_CTRL_TIE_MASK                       | LPUART_CTRL_RIE_MASK)))
@@ -399,7 +413,7 @@ static void LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInte
   * @param [in] instance: The LPUART instance to use for transmission
   * @retval None
   */
-void HAL_LPUART_DisableTransmit(const uint8_t instance)
+void DRV_LPUART_DisableTransmit(const uint8_t instance)
 {
     /* Get LPUART base address */
     LPUART_Type *base = g_LPUARTBase[instance];
@@ -413,7 +427,7 @@ void HAL_LPUART_DisableTransmit(const uint8_t instance)
   * @param [in] instance: The LPUART instance to use for transmission
   * @retval None
   */
-void HAL_LPUART_EnableTransmit(const uint8_t instance)
+void DRV_LPUART_EnableTransmit(const uint8_t instance)
 {
     /* Get LPUART base address */
     LPUART_Type *base = g_LPUARTBase[instance];
@@ -465,12 +479,47 @@ uint8_t DRV_LPUART_ReceiveChar(const uint8_t instance)
     LPUART_Type *base = g_LPUARTBase[instance];
     uint8_t retVal = 0u;
 
-    if(((base->STAT & LPUART_STAT_RDRF_MASK) >> LPUART_STAT_RDRF_SHIFT) == 1)
+    if(((base->STAT & LPUART_STAT_RDRF_MASK) >> LPUART_STAT_RDRF_SHIFT) == 1U)
     {
         retVal = base->DATA; /* Read received data */
     }
 
     return retVal;
+}
+
+/**
+  * @brief  Control transmit interrupt
+  * @param[in] instance: The LPUART instance to use for transmission
+  * @param[in] enable:   Enable or disable transmit interrupt
+  * @retval None
+  */
+void DRV_LPUART_SetTransmitITStatus(const uint8_t instance, bool enable)
+{
+    /* Get LPUART base address */
+    LPUART_Type *base = g_LPUARTBase[instance];
+
+    if (enable)
+    {
+        if (!(base->CTRL & LPUART_CTRL_TIE_MASK))
+        {
+            base->CTRL |= LPUART_CTRL_TIE_MASK;
+        }
+        else
+        {
+            /* Do nothing. Interrupt is already enabled */
+        }
+    }
+    else
+    {
+        if (base->CTRL & LPUART_CTRL_TIE_MASK)
+        {
+            base->CTRL &= ~LPUART_CTRL_TIE_MASK;
+        }
+        else
+        {
+            /* Do nothing. Interrupt is already disabled */
+        }
+    }
 }
 
 /**
@@ -528,7 +577,7 @@ void DRV_LPUART_RegisterIntCallback(const uint8_t instance, IRQ_FuncCallback fp)
   */
 void LPUART0_RxTx_IRQHandler(void)
 {
-    LPUART_IRQ_Fp[0]();
+    LPUART_IRQ_Fp[(uint8_t)(LPUART0)]();
 }
 
 /**
@@ -538,8 +587,19 @@ void LPUART0_RxTx_IRQHandler(void)
   */
 void LPUART1_RxTx_IRQHandler(void)
 {
-    LPUART_IRQ_Fp[1]();
+    LPUART_IRQ_Fp[(uint8_t)(LPUART1)]();
 }
+
+/**
+  * @brief  LPUART2 interrupt handler function
+  * @param  None
+  * @retval None
+  */
+void LPUART2_RxTx_IRQHandler(void)
+{
+    LPUART_IRQ_Fp[(uint8_t)(LPUART2)]();
+}
+
 /*******************************************************************************
  * End Of File
  ******************************************************************************/

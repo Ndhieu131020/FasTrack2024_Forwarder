@@ -1,24 +1,17 @@
-/*
- *  Filename: MID_UART_Interface.c
- *
- *  Created on: 11-16-2024
- *      Author: Ndhieu131020@gmail.com
-*/
 #include "DRV_S32K144_PORT.h"
-#include "DRV_S32K144_MCU.h"
 #include "DRV_S32K144_LPUART.h"
 #include "MID_UART_Interface.h"
 
 /*******************************************************************************
  * Definition
  ******************************************************************************/
-#define UART_USER_BAUDRATE   115200
+
+#define USR_LPUART_INS         ((uint8_t)LPUART1)
+#define STANDARD_BAUDRATE      (115200u)
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-static void LPUART_PinConfig(void);
-static void LPUART_ParamConfig(void);
 
 /*******************************************************************************
  * Variables
@@ -27,7 +20,8 @@ static void LPUART_ParamConfig(void);
 /*******************************************************************************
  * Code
  ******************************************************************************/
-static void LPUART_PinConfig(void)
+
+void MID_UART_Init(void)
 {
     virtual_pin_id_t LPUART_Tx_Pin = PTC7;
     virtual_pin_id_t LPUART_Rx_Pin = PTC6;
@@ -38,64 +32,51 @@ static void LPUART_PinConfig(void)
         .Interrupt   =  PORT_INT_DISABLED,                /* Disable interrupt for the pin              */
         .Pull        =  PORT_INTERNAL_PULL_NOT_ENABLED    /* Disable internal pull resistor for the pin */
     };
-    DRV_PORT_Init((uint8_t)GET_PORT(LPUART_Tx_Pin), (uint8_t)GET_PIN_NUM(LPUART_Tx_Pin), &PortConfigLPUART);
-    DRV_PORT_Init((uint8_t)GET_PORT(LPUART_Rx_Pin), (uint8_t)GET_PIN_NUM(LPUART_Rx_Pin), &PortConfigLPUART);
-}
+    DRV_PORT_Init(GET_PORT((uint8_t)LPUART_Tx_Pin), GET_PIN_NUM((uint8_t)LPUART_Tx_Pin), &PortConfigLPUART);
+    DRV_PORT_Init(GET_PORT((uint8_t)LPUART_Rx_Pin), GET_PIN_NUM((uint8_t)LPUART_Rx_Pin), &PortConfigLPUART);
 
-static void LPUART_ParamConfig(void)
-{
-    lpuart_config_t LPUART_InitStructure;
-    uint32_t Uart_Clk_Freq = 0u;
-
-    LPUART_InitStructure.baudRate = 115200;
-    LPUART_InitStructure.numberDataBits = LPUART_8_BITS_PER_CHAR;
-    LPUART_InitStructure.parityMode = LPUART_PARITY_DISABLED;
-    LPUART_InitStructure.bitOrder = LPUART_LSB_FIRST;
-    LPUART_InitStructure.stopBit = LPUART_ONE_STOP_BIT;
-    LPUART_InitStructure.transmitDataInverted = false;
-    LPUART_InitStructure.receiveDataInverted = false;
-    LPUART_InitStructure.enableTransmitInterrupt = true;
-    LPUART_InitStructure.enableReceiveInterrupt = true;
-
-    DRV_Clock_GetFrequency(LPUART1_CLK, &Uart_Clk_Freq);
-
-    if (Uart_Clk_Freq != 0u)
+    /* LPUART Configuration */
+    const lpuart_config_t lpuartConfig =
     {
-       DRV_LPUART_Init(USR_INSTANCE, &LPUART_InitStructure, Uart_Clk_Freq);
-    }
-    else
-    {
-        /* Error */
-    }
-}
-
-void MID_UART_Init(void)
-{
-    LPUART_PinConfig();
-    LPUART_ParamConfig();
+        .baudRate                 =  STANDARD_BAUDRATE,            /* Set standard baud rate is 115200         */
+        .numberDataBits           =  LPUART_8_BITS_PER_CHAR,       /* Set number of data bits per character    */
+        .parityMode               =  LPUART_PARITY_DISABLED,       /* Disable parity bit                       */
+        .bitOrder                 =  LPUART_LSB_FIRST,             /* Set least significant bit first          */
+        .stopBit                  =  LPUART_ONE_STOP_BIT,          /* Set one stop bit                         */
+        .transmitDataInverted     =  false,                        /* Do not invert transmitted data           */
+        .receiveDataInverted      =  false,                        /* Do not invert received data              */
+        .enableTransmitInterrupt  =  true,                         /* Enable transmit interrupt                */
+        .enableReceiveInterrupt   =  true                          /* Enable receive interrupt                 */
+    };
+    DRV_LPUART_Init(USR_LPUART_INS, &lpuartConfig);
 }
 
 void MID_UART_RegisterNotificationCallback(void (*cb_ptr)(void))
 {
-    DRV_LPUART_RegisterIntCallback(USR_INSTANCE, cb_ptr);
+    DRV_LPUART_RegisterIntCallback(USR_LPUART_INS, cb_ptr);
 }
 
 uint8_t MID_UART_ReceiveData(void)
 {
-    return DRV_LPUART_ReceiveChar(USR_INSTANCE);
+    return DRV_LPUART_ReceiveChar(USR_LPUART_INS);
 }
 
 void MID_UART_SendData(uint8_t Data)
 {
-    DRV_LPUART_SendChar(USR_INSTANCE, Data);
+    DRV_LPUART_SendChar(USR_LPUART_INS, Data);
+}
+
+void MID_UART_SetTxInterrupt(bool enable)
+{
+    DRV_LPUART_SetTransmitITStatus(USR_LPUART_INS, enable);
 }
 
 uint8_t MID_UART_GetCommingMessageEvent(void)
 {
-    return DRV_GetReceiveITStatus(USR_INSTANCE);
+    return DRV_GetReceiveITStatus(USR_LPUART_INS);
 }
 
 uint8_t MID_UART_GetSendingMessageEvent(void)
 {
-    return DRV_GetTransmitITStatus(USR_INSTANCE);
+    return DRV_GetTransmitITStatus(USR_LPUART_INS);
 }

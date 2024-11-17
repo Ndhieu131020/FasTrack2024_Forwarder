@@ -15,7 +15,7 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
-#define USR_INSTANCE    1u
+
 /*******************************************************************************
  * API
  ******************************************************************************/
@@ -26,6 +26,8 @@ void MID_UART_RegisterNotificationCallback(void (*cb_ptr)(void));
 uint8_t MID_UART_ReceiveData(void);
 
 void MID_UART_SendData(uint8_t Data);
+
+void MID_UART_SetTxInterrupt(bool enable);
 
 uint8_t MID_UART_GetCommingMessageEvent(void);
 
