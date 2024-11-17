@@ -6,6 +6,7 @@
 */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "MID_Clock_Interface.h"
 #include "MID_Notification_Manager.h"
 #include "MID_Timer_Interface.h"
@@ -23,12 +24,15 @@
  ******************************************************************************/
 static void App_CANReceiveNotification(void);
 static void App_CANBusOffNotification(void);
-static void App_UARTNotification(void);
+static void App_UART_TxNotification(void);
+static void App_UART_RxNotification(void);
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+
 uint8_t data = 0u;
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -41,14 +45,15 @@ int main(void)
 
     MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
     MID_CAN_RegisterBusOffNotificationCallback(App_CANBusOffNotification);
-    MID_UART_RegisterNotificationCallback(&App_UARTNotification);
+    MID_UART_RegisterNotificationCallback(&App_UART_TxNotification, &App_UART_RxNotification);
 
     MID_EnableNotification();
     MID_Timer_StartTimer();
 
     while(1)
     {
-        MID_UART_SendData('A');
+        // MID_UART_SendData('A');
+        // MID_UART_SetTxInterrupt(false);
     }
 
     return 0;
@@ -64,15 +69,12 @@ static void App_CANBusOffNotification(void)
 
 }
 
-static void App_UARTNotification(void)
+static void App_UART_TxNotification(void)
 {
-    if(MID_UART_GetCommingMessageEvent())
-    {
-        data = MID_UART_ReceiveData();
-    }
+    MID_UART_SendData("DuongTDL2", 9u);
+}
 
-    if(MID_UART_GetSendingMessageEvent())
-    {
-        MID_UART_SendData('B');
-    }
+static void App_UART_RxNotification(void)
+{
+    data = MID_UART_ReceiveData();
 }

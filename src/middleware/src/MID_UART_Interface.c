@@ -51,9 +51,9 @@ void MID_UART_Init(void)
     DRV_LPUART_Init(USR_LPUART_INS, &lpuartConfig);
 }
 
-void MID_UART_RegisterNotificationCallback(void (*cb_ptr)(void))
+void MID_UART_RegisterNotificationCallback(void (*TxCallback)(void), void (*RxCallback)(void))
 {
-    DRV_LPUART_RegisterIntCallback(USR_LPUART_INS, cb_ptr);
+    DRV_LPUART_RegisterIntCallback(USR_LPUART_INS, TxCallback, RxCallback);
 }
 
 uint8_t MID_UART_ReceiveData(void)
@@ -61,22 +61,27 @@ uint8_t MID_UART_ReceiveData(void)
     return DRV_LPUART_ReceiveChar(USR_LPUART_INS);
 }
 
-void MID_UART_SendData(uint8_t Data)
+void MID_UART_SendData(uint8_t * data, uint8_t d_length)
 {
-    DRV_LPUART_SendChar(USR_LPUART_INS, Data);
+    static uint8_t index = 0u;
+
+//    for(index = 0u; index < d_length; index++)
+//    {
+//        DRV_LPUART_SendChar(USR_LPUART_INS, data[index]);
+//    }
+
+    if (index < d_length)
+    {
+        DRV_LPUART_SendChar(USR_LPUART_INS, data[index]);
+        index++;
+    }
+    else
+    {
+        MID_UART_SetTxInterrupt(false);
+    }
 }
 
 void MID_UART_SetTxInterrupt(bool enable)
 {
     DRV_LPUART_SetTransmitITStatus(USR_LPUART_INS, enable);
-}
-
-uint8_t MID_UART_GetCommingMessageEvent(void)
-{
-    return DRV_GetReceiveITStatus(USR_LPUART_INS);
-}
-
-uint8_t MID_UART_GetSendingMessageEvent(void)
-{
-    return DRV_GetTransmitITStatus(USR_LPUART_INS);
 }

@@ -24,6 +24,13 @@
 /* Oversampling ratio of 7 for UART communication */
 #define OVERSAMPLING_RATIO_OF_7      (6U)
 
+/* Structure to hold the two callback functions for Rx and Tx interrupts */
+typedef struct
+{
+    IRQ_FuncCallback rxCallback;  /* Callback for Rx interrupt */
+    IRQ_FuncCallback txCallback;  /* Callback for Tx interrupt */
+} LPUART_IRQ_Callbacks;
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -36,6 +43,7 @@ static void DRV_LPUART_setStopBit(LPUART_Type *base, const lpuart_stop_bit_t sto
 static void DRV_LPUART_SetBaudRate(LPUART_Type *base, const uint32_t baudRate, const uint32_t lpuartClkFreq);
 static void DRV_LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmitInterruptEnabled, \
                                     const bool isReceiveInterruptEnabled);
+static void DRV_LPUART_IRQHandler(uint8_t instance);
 
 /*******************************************************************************
  * Variables
@@ -47,8 +55,7 @@ static LPUART_Type * const g_LPUARTBase[LPUART_INSTANCE_COUNT] = IP_LPUART_BASE_
 /* Array LPUART clock names */
 static const clock_names_t g_LPUARTClkNames[LPUART_INSTANCE_COUNT] = LPUART_CLOCK_NAMES;
 
-/* Array of function pointers for LPUART interrupt handlers */
-static IRQ_FuncCallback LPUART_IRQ_Fp[LPUART_INSTANCE_COUNT] = {NULL};
+static LPUART_IRQ_Callbacks LPUART_IRQ_CallbacksArray[LPUART_INSTANCE_COUNT] = { {NULL, NULL} };
 
 /*******************************************************************************
  * Codes
@@ -410,10 +417,10 @@ static void DRV_LPUART_SetRxTxInterrupt(LPUART_Type *base, const bool isTransmit
 
 /**
   * @brief  Disable transmitter & receiver
-  * @param [in] instance: The LPUART instance to use for transmission
+  * @param [in] instance: The LPUART instance to use for communication
   * @retval None
   */
-void DRV_LPUART_DisableTransmit(const uint8_t instance)
+void DRV_LPUART_DisableCommunication(const uint8_t instance)
 {
     /* Get LPUART base address */
     LPUART_Type *base = g_LPUARTBase[instance];
@@ -424,10 +431,10 @@ void DRV_LPUART_DisableTransmit(const uint8_t instance)
 
 /**
   * @brief  Enable transmitter & receiver
-  * @param [in] instance: The LPUART instance to use for transmission
+  * @param [in] instance: The LPUART instance to use for communication
   * @retval None
   */
-void DRV_LPUART_EnableTransmit(const uint8_t instance)
+void DRV_LPUART_EnableCommunication(const uint8_t instance)
 {
     /* Get LPUART base address */
     LPUART_Type *base = g_LPUARTBase[instance];
@@ -438,7 +445,7 @@ void DRV_LPUART_EnableTransmit(const uint8_t instance)
 
 /**
   * @brief: Transmit a single character via LPUART
-  * @param [in] instance: The LPUART instance to use for transmission
+  * @param [in] instance: The LPUART instance to use for communication
   * @param [in] Data:     The character to transmit
   * @return: None
   */
@@ -452,25 +459,8 @@ void DRV_LPUART_SendChar(const uint8_t instance, uint8_t Data)
 }
 
 /**
-  * @brief: Transmit a single character via LPUART
-  * @param[in] instance: The LPUART instance to use for transmission
-  * @param[in] Data: Pointer to data string
-  * @param[in] d_length: the length of Data string
-  * @return: None
-  */
-void DRV_LPUART_SendString(const uint8_t instance, uint8_t *Data, uint8_t d_length)
-{
-    uint8_t index = 0u;
-
-    for(index = 0u; index < d_length; index++)
-    {
-        DRV_LPUART_SendChar(instance, Data[index]);
-    }
-}
-
-/**
   * @brief  Receive a chacacter from LPUART
-  * @param[in] instance: The LPUART instance to use for transmission
+  * @param[in] instance: The LPUART instance to use for communication
   * @retval Received data
   */
 uint8_t DRV_LPUART_ReceiveChar(const uint8_t instance)
@@ -489,7 +479,7 @@ uint8_t DRV_LPUART_ReceiveChar(const uint8_t instance)
 
 /**
   * @brief  Control transmit interrupt
-  * @param[in] instance: The LPUART instance to use for transmission
+  * @param[in] instance: The LPUART instance to use for communication
   * @param[in] enable:   Enable or disable transmit interrupt
   * @retval None
   */
@@ -523,50 +513,45 @@ void DRV_LPUART_SetTransmitITStatus(const uint8_t instance, bool enable)
 }
 
 /**
-  * @brief  Get empty state of transmit data register (Transmit Interrupt)
-  * @param[in] instance: The LPUART instance to use for transmission
-  * @retval IT status (0: DISABLE 1: ENABLE)
-  */
-uint8_t DRV_GetTransmitITStatus(const uint8_t instance)
-{
-    /* Get LPUART base address */
-    LPUART_Type *base = g_LPUARTBase[instance];
-
-    uint32_t regVal = base->STAT;
-
-    return ((regVal & LPUART_STAT_TDRE_MASK) >> LPUART_STAT_TDRE_SHIFT);
-}
-
-/**
-  * @brief  Get full state of receive data register (Transmit Interrupt)
-  * @param[in] instance: The LPUART instance to use for transmission
-  * @retval IT status (0: DISABLE 1: ENABLE)
-  */
-uint8_t DRV_GetReceiveITStatus(const uint8_t instance)
-{
-    /* Get LPUART base address */
-    LPUART_Type *base = g_LPUARTBase[instance];
-
-    uint32_t regVal = base->STAT;
-
-    return ((regVal & LPUART_STAT_RDRF_MASK) >> LPUART_STAT_RDRF_SHIFT);
-}
-
-/**
-  * @brief  Registers an interrupt callback function for the specified LPUART peripheral.
-  * @param[in] instance: The LPUART instance to use for transmission
-  * @param[in] fp:       The function pointer to the callback function that will handle the interrupt.
+  * @brief  Register interrupt callback
+  * @param[in] instance: The LPUART instance to use for communication
+  * @param[in] Txcallback: Pointer to transmit interrupt callback function
+  * @param[in] Rxcallback: Pointer to receive interrupt callback function
   * @retval None
   */
-void DRV_LPUART_RegisterIntCallback(const uint8_t instance, IRQ_FuncCallback fp)
+void DRV_LPUART_RegisterIntCallback(uint8_t instance, IRQ_FuncCallback Txcallback, IRQ_FuncCallback Rxcallback)
 {
-    if (instance < LPUART_INSTANCE_COUNT)
+    if (Txcallback != NULL)
     {
-        LPUART_IRQ_Fp[instance] = fp;
+        LPUART_IRQ_CallbacksArray[instance].txCallback = Txcallback;
     }
-    else
+
+    if (Rxcallback != NULL)
     {
-        /* Do nothing */
+        LPUART_IRQ_CallbacksArray[instance].rxCallback = Rxcallback;
+    }
+}
+
+/**
+  * @brief  LPUART interrupt handler function
+  * @param  None
+  * @retval None
+  */
+static void DRV_LPUART_IRQHandler(uint8_t instance)
+{
+    /* Get LPUART base address */
+    LPUART_Type * base = g_LPUARTBase[instance];
+
+    /* Check if the Receive Data Register Full (RDRF) flag is set */
+    if ((base->STAT & LPUART_STAT_RDRF_MASK) >> LPUART_STAT_RDRF_SHIFT)
+    {
+        LPUART_IRQ_CallbacksArray[instance].rxCallback();
+    }
+
+    /* Check if the Transmit Data Register Empty (TDRE) flag is set */
+    if ((base->STAT & LPUART_STAT_TDRE_MASK) >> LPUART_STAT_TDRE_SHIFT)
+    {
+        LPUART_IRQ_CallbacksArray[instance].txCallback();
     }
 }
 
@@ -577,7 +562,7 @@ void DRV_LPUART_RegisterIntCallback(const uint8_t instance, IRQ_FuncCallback fp)
   */
 void LPUART0_RxTx_IRQHandler(void)
 {
-    LPUART_IRQ_Fp[(uint8_t)(LPUART0)]();
+    DRV_LPUART_IRQHandler((uint8_t)LPUART0);
 }
 
 /**
@@ -587,7 +572,7 @@ void LPUART0_RxTx_IRQHandler(void)
   */
 void LPUART1_RxTx_IRQHandler(void)
 {
-    LPUART_IRQ_Fp[(uint8_t)(LPUART1)]();
+    DRV_LPUART_IRQHandler((uint8_t)LPUART1);
 }
 
 /**
@@ -597,7 +582,7 @@ void LPUART1_RxTx_IRQHandler(void)
   */
 void LPUART2_RxTx_IRQHandler(void)
 {
-    LPUART_IRQ_Fp[(uint8_t)(LPUART2)]();
+    DRV_LPUART_IRQHandler((uint8_t)LPUART2);
 }
 
 /*******************************************************************************
