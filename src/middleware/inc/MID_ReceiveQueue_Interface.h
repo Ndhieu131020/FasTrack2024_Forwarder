@@ -1,5 +1,5 @@
-#ifndef MID_QUEUE_INTERFACE_H_
-#define MID_QUEUE_INTERFACE_H_
+#ifndef MID_RECEIVEQUEUE_INTERFACE_H_
+#define MID_RECEIVEQUEUE_INTERFACE_H_
 
 /*******************************************************************************
  * Includes
@@ -21,7 +21,7 @@ QueueCheckOperation_t MID_Receive_EnQueue( const ReceiveFrame_t *const pInData )
 
 QueueCheckOperation_t MID_Receive_DeQueue( ReceiveFrame_t *const pOutData );
 
-#endif /* MID_QUEUE_INTERFACE_H_ */
+#endif /* MID_RECEIVEQUEUE_INTERFACE_H_ */
 /*******************************************************************************
  * EOF
  ******************************************************************************/

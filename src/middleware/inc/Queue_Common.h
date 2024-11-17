@@ -12,14 +12,15 @@
  * Defines
  ******************************************************************************/
 #ifndef FALSE
-#define FALSE 	            0U
+#define FALSE 	             0U
 #endif
 
 #ifndef TRUE
-#define TRUE 	            1U
+#define TRUE 	             1U
 #endif
 
-#define QUEUE_RECEIVE_SIZE  22
+#define QUEUE_RECEIVE_SIZE   22
+#define TRANSMIT_QUEUE_SIZE  500
 
 /*******************************************************************************
  * Typedef structs
@@ -46,6 +47,15 @@ typedef struct
     ReceiveFrame_t queueArray[QUEUE_RECEIVE_SIZE];
     uint16_t       capacity;
 } CircularQueueReceive_t;
+
+/* Circular queue for sending UART frames */
+typedef struct
+{
+    int16_t Front;
+    int16_t Rear;
+    int16_t Size;
+    uint8_t Data[TRANSMIT_QUEUE_SIZE];
+}Transmit_Queue_Typedef;
 
 #endif /* QUEUE_COMMON_H_ */
 
