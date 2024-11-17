@@ -11,6 +11,8 @@
 #include "MID_Timer_Interface.h"
 #include "MID_CAN_Interface.h"
 #include "MID_UART_Interface.h"
+#include "MID_ReceiveQueue_Interface.h"
+#include "MID_TransmitQueue_Interface.h"
 
 /*******************************************************************************
  * Definition
