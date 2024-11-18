@@ -45,7 +45,7 @@ void MID_UART_Init(void)
         .stopBit                  =  LPUART_ONE_STOP_BIT,          /* Set one stop bit                         */
         .transmitDataInverted     =  false,                        /* Do not invert transmitted data           */
         .receiveDataInverted      =  false,                        /* Do not invert received data              */
-        .enableTransmitInterrupt  =  true,                         /* Enable transmit interrupt                */
+        .enableTransmitInterrupt  =  false,                         /* Enable transmit interrupt                */
         .enableReceiveInterrupt   =  true                          /* Enable receive interrupt                 */
     };
     DRV_LPUART_Init(USR_LPUART_INS, &lpuartConfig);
