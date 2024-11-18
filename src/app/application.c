@@ -28,6 +28,7 @@ static void App_CANBusOffNotification(void);
 static void App_UART_TxNotification(void);
 static void App_UART_RxNotification(void);
 
+static void App_Handle_DataFromDistanceSensor(void);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -36,11 +37,13 @@ static void App_UART_RxNotification(void);
 uint8_t Receive_Data_Str[MSG_LENGTH_MAX] = {0};
 uint8_t Receive_Data_Idx                 = 0u;
 
+ReceiveFrame_t Processing_Msg = {0};
 /*******************************************************************************
  * Code
  ******************************************************************************/
 int main(void)
 {
+    QueueCheckOperation_t status = QUEUE_DONE_FAILED;
     MID_Clock_Init();
     MID_CAN_Init();
 //    MID_Timer_Init();
@@ -57,6 +60,22 @@ int main(void)
     while(1)
     {
 
+        status = MID_Receive_DeQueue(&Processing_Msg);
+
+        if(status == QUEUE_DONE_SUCCESS)
+        {
+            switch (Processing_Msg.ID)
+            {
+            /* If received data message from Distance sensor node */
+            case RX_DISTANCE_DATA_ID:
+                /* Send confirm message to distance sensor node*/
+                App_Handle_DataFromDistanceSensor();
+                break;
+            default:
+                break;
+            }
+        }
+        status = QUEUE_DONE_FAILED;
     }
 
     return 0;
@@ -154,4 +173,11 @@ static void App_UART_RxNotification(void)
         /* Clear data index */
         Receive_Data_Idx = 0u;
     }
+}
+
+static void App_Handle_DataFromDistanceSensor(void)
+{
+    /* Send confirm message to distance sensor node */
+    MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
+    /**/
 }

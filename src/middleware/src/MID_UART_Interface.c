@@ -5,7 +5,6 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
-
 #define USR_LPUART_INS         ((uint8_t)LPUART1)
 #define STANDARD_BAUDRATE      (115200u)
 
@@ -45,7 +44,7 @@ void MID_UART_Init(void)
         .stopBit                  =  LPUART_ONE_STOP_BIT,          /* Set one stop bit                         */
         .transmitDataInverted     =  false,                        /* Do not invert transmitted data           */
         .receiveDataInverted      =  false,                        /* Do not invert received data              */
-        .enableTransmitInterrupt  =  false,                         /* Enable transmit interrupt                */
+        .enableTransmitInterrupt  =  false,                        /* Disable transmit interrupt               */
         .enableReceiveInterrupt   =  true                          /* Enable receive interrupt                 */
     };
     DRV_LPUART_Init(USR_LPUART_INS, &lpuartConfig);
@@ -61,24 +60,9 @@ uint8_t MID_UART_ReceiveData(void)
     return DRV_LPUART_ReceiveChar(USR_LPUART_INS);
 }
 
-void MID_UART_SendData(uint8_t * data, uint8_t d_length)
+void MID_UART_SendData(uint8_t data)
 {
-    static uint8_t index = 0u;
-
-//    for(index = 0u; index < d_length; index++)
-//    {
-//        DRV_LPUART_SendChar(USR_LPUART_INS, data[index]);
-//    }
-
-    if (index < d_length)
-    {
-        DRV_LPUART_SendChar(USR_LPUART_INS, data[index]);
-        index++;
-    }
-    else
-    {
-        MID_UART_SetTxInterrupt(false);
-    }
+    DRV_LPUART_SendChar(USR_LPUART_INS, data);
 }
 
 void MID_UART_SetTxInterrupt(bool enable)

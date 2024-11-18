@@ -29,7 +29,7 @@ void MID_Receive_Queue_Init( void )
     receiveQueue.capacity = 0U;
     receiveQueue.size     = QUEUE_RECEIVE_SIZE;
 
-    for (index = 0; index < QUEUE_RECEIVE_SIZE; index++)
+    for (index = 0u; index < QUEUE_RECEIVE_SIZE; index++)
     {
         receiveQueue.queueArray[index].ID   = 0u;
         receiveQueue.queueArray[index].Data = 0u;

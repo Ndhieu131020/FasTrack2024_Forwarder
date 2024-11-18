@@ -22,6 +22,13 @@
  * Code
  ******************************************************************************/
 
+/**
+  * @brief  Function to parser the string and extract 2 unsigned integers
+  * @param[in]  str   Pointer to the input string to be parsed.
+  * @param[in]  length Length of the input string (excluding any null terminator).
+  * @param[out] Output  Pointer to store Message frame struct (contain ID and Data).
+  * @return true if the parsing is successful and both numbers are extracted, false if the input format is invalid.
+  */
 bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output)
 {
     uint32_t temp1           = 0u;
@@ -46,13 +53,13 @@ bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output
         {
             if (is_second_number)
             {
-                return false; // Chuỗi không hợp lệ (nhiều hơn một dấu '-')
+                return false; /* Invalid string (more than one '-') */
             }
-            is_second_number = 1; // Chuyển sang đọc số thứ hai
+            is_second_number = 1; /* Switch to parsing the second number */
         }
         else
         {
-            return false; // Ký tự không hợp lệ
+            return false; /* Invalid character */
         }
         idx++;
     }
