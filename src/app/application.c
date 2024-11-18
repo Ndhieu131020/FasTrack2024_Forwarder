@@ -61,7 +61,40 @@ int main(void)
 
 static void App_CANReceiveNotification(void)
 {
+    ReceiveFrame_t        Data_Receive = {0U};
+    QueueCheckOperation_t status       = QUEUE_DONE_FAILED;
 
+   if(MID_CheckCommingMessageEvent(RX_DISTANCE_DATA_MB) == CAN_MSG_RECEIVED)
+   {
+        MID_CAN_ReceiveMessage(RX_DISTANCE_DATA_MB, &Data_Receive);
+        MID_ClearMessageCommingEvent(RX_DISTANCE_DATA_MB);
+        /* Push distance data into queue */
+        status = MID_Receive_EnQueue(&Data_Receive);
+   }
+
+   if(MID_CheckCommingMessageEvent(RX_ROTATION_DATA_MB) == CAN_MSG_RECEIVED)
+   {
+        MID_CAN_ReceiveMessage(RX_ROTATION_DATA_MB, &Data_Receive);
+        MID_ClearMessageCommingEvent(RX_ROTATION_DATA_MB);
+        /* Push rotation data into queue */
+        status = MID_Receive_EnQueue(&Data_Receive);
+   }
+
+      if(MID_CheckCommingMessageEvent(RX_CONFIRM_FROM_DISTANCE_NODE_MB) == CAN_MSG_RECEIVED)
+   {
+        MID_CAN_ReceiveMessage(RX_CONFIRM_FROM_DISTANCE_NODE_MB, &Data_Receive);
+        MID_ClearMessageCommingEvent(RX_CONFIRM_FROM_DISTANCE_NODE_MB);
+        /* Push distance confirm data into queue */
+        status = MID_Receive_EnQueue(&Data_Receive);
+   }
+
+   if(MID_CheckCommingMessageEvent(RX_CONFIRM_FROM_ROTATION_NODE_MB) == CAN_MSG_RECEIVED)
+   {
+        MID_CAN_ReceiveMessage(RX_CONFIRM_FROM_ROTATION_NODE_MB, &Data_Receive);
+        MID_ClearMessageCommingEvent(RX_CONFIRM_FROM_ROTATION_NODE_MB);
+        /* Push rotation confirm data into queue */
+        status = MID_Receive_EnQueue(&Data_Receive);
+   }
 }
 
 static void App_CANBusOffNotification(void)
