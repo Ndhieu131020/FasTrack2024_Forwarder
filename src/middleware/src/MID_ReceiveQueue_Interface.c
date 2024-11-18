@@ -14,18 +14,26 @@ static CircularQueueReceive_t receiveQueue;
  * Prototypes
  ******************************************************************************/
 /* Check if QueueReceive is full */
-static uint8_t QueueReceive_isFull( const CircularQueueReceive_t *const pQueue );
+static bool QueueReceive_isFull( const CircularQueueReceive_t *const pQueue );
 
 /* Check if QueueReceive is empty */
-static uint8_t QueueReceive_isEmpty( const CircularQueueReceive_t *const pQueue );
+static bool QueueReceive_isEmpty( const CircularQueueReceive_t *const pQueue );
 
 /* Initialize for QueueReceive */
 void MID_Receive_Queue_Init( void )
 {
+    uint8_t index = 0u;
+
     receiveQueue.front    = -1;
     receiveQueue.rear     = -1;
     receiveQueue.capacity = 0U;
     receiveQueue.size     = QUEUE_RECEIVE_SIZE;
+
+    for (index = 0; index < QUEUE_RECEIVE_SIZE; index++)
+    {
+        receiveQueue.queueArray[index].ID   = 0u;
+        receiveQueue.queueArray[index].Data = 0u;
+    }
 }
 
 
@@ -35,7 +43,7 @@ QueueCheckOperation_t MID_Receive_EnQueue( const ReceiveFrame_t *const pInData )
 
     if( pInData != NULL )
     {
-        if ( !QueueReceive_isFull(&receiveQueue) )
+        if (!QueueReceive_isFull(&receiveQueue))
         {
             if ( receiveQueue.front == -1 )
             {
@@ -70,9 +78,10 @@ QueueCheckOperation_t MID_Receive_DeQueue( ReceiveFrame_t *const pOutData )
 
     if( pOutData !=NULL )
     {
-        if ( !QueueReceive_isEmpty(&receiveQueue) )
+        if (!QueueReceive_isEmpty(&receiveQueue))
         {
             *pOutData = receiveQueue.queueArray[receiveQueue.front];
+
             (receiveQueue.capacity)--;
             if (receiveQueue.front == receiveQueue.rear)
             {
@@ -99,15 +108,15 @@ QueueCheckOperation_t MID_Receive_DeQueue( ReceiveFrame_t *const pOutData )
 }
 
 
-static uint8_t QueueReceive_isFull( const CircularQueueReceive_t *const pQueue )
+static bool QueueReceive_isFull( const CircularQueueReceive_t *const pQueue )
 {
-    uint8_t status = FALSE;
+    bool status = false;
 
     if( pQueue != NULL )
     {
-        if( (pQueue -> capacity) == (pQueue -> size) )
+        if( (pQueue->capacity) == (pQueue->size) )
         {
-            status = TRUE;
+            status = true;
         }
         else
         {
@@ -123,15 +132,15 @@ static uint8_t QueueReceive_isFull( const CircularQueueReceive_t *const pQueue )
 }
 
 
-static uint8_t QueueReceive_isEmpty( const CircularQueueReceive_t *const pQueue )
+static bool QueueReceive_isEmpty( const CircularQueueReceive_t *const pQueue )
 {
-    uint8_t status = FALSE;
+    bool status = false;
 
     if( pQueue != NULL )
     {
         if( pQueue->capacity == 0U )
         {
-            status = TRUE;
+            status = true;
         }
         else
         {

@@ -11,13 +11,6 @@
 /*******************************************************************************
  * Defines
  ******************************************************************************/
-#ifndef FALSE
-#define FALSE 	             0U
-#endif
-
-#ifndef TRUE
-#define TRUE 	             1U
-#endif
 
 #define QUEUE_RECEIVE_SIZE   22
 #define TRANSMIT_QUEUE_SIZE  500
