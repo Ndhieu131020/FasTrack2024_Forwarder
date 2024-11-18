@@ -32,4 +32,6 @@
   */
 bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output);
 
+void Convert_ID_Data_To_UARTString(uint32_t id, uint32_t data, uint8_t *outputBuffer);
+
 #endif /* APP_DATAPROCESSING_H_ */

@@ -37,6 +37,10 @@ static void App_Handle_DataFromDistanceSensor(void);
 uint8_t Receive_Data_Str[MSG_LENGTH_MAX] = {0};
 uint8_t Receive_Data_Idx                 = 0u;
 
+/* Array stores UART frame to transmit PC Tool */
+uint8_t Transmit_Data_Str[MSG_LENGTH_MAX] = {0};
+uint8_t Transmit_Data_Idx                 = 0u;
+
 ReceiveFrame_t Processing_Msg = {0};
 /*******************************************************************************
  * Code
@@ -48,6 +52,7 @@ int main(void)
     MID_CAN_Init();
 //    MID_Timer_Init();
     MID_UART_Init();
+    MID_Transmit_Queue_Init();
     MID_Receive_Queue_Init();
 
     MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
@@ -145,7 +150,24 @@ static void App_CANBusOffNotification(void)
 
 static void App_UART_TxNotification(void)
 {
+    uint8_t               data   = 0u;
+    QueueCheckOperation_t status = MID_Transmit_Dequeue(&data);
 
+    if (status == QUEUE_DONE_SUCCESS)
+    {
+        if (data != '\0')
+        {
+            MID_UART_SendData(data);
+        }
+        else
+        {
+            MID_UART_SetTxInterrupt(false);
+        }
+    }
+    else
+    {
+        MID_UART_SetTxInterrupt(false);
+    }
 }
 
 static void App_UART_RxNotification(void)
@@ -180,4 +202,13 @@ static void App_Handle_DataFromDistanceSensor(void)
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
     /**/
+    Convert_ID_Data_To_UARTString(Processing_Msg.ID, Processing_Msg.Data, Transmit_Data_Str);
+
+    while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+    {
+        MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+        Transmit_Data_Idx++;
+    }
+    MID_UART_SetTxInterrupt(true);
+    Transmit_Data_Idx = 0u;
 }

@@ -14,6 +14,8 @@
  * Prototypes
  ******************************************************************************/
 
+static uint8_t UIntToString(uint32_t value, uint8_t *buffer);
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -68,4 +70,51 @@ bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output
     Output->Data = temp2;
 
     return true;
+}
+
+void Convert_ID_Data_To_UARTString(uint32_t id, uint32_t data, uint8_t *outputBuffer)
+{
+    uint8_t *ptr = outputBuffer;
+
+    ptr += UIntToString(id, ptr);
+
+    *ptr++ = '-';
+
+    ptr += UIntToString(data, ptr);
+
+    *ptr++ = '\n';
+
+    *ptr = '\0';
+}
+
+static uint8_t UIntToString(uint32_t value, uint8_t *buffer)
+{
+    uint8_t temp[10];              /* Temporary buffer to store digits in reverse order.    */
+    uint8_t digitIndex = 0u;     /* Index for storing digits in the temporary buffer.     */
+    uint8_t reverseIndex = 0u;   /* Index for reversing the digits into the final buffer. */
+
+    /* Handle the special case where the value is 0. */
+    if (value == 0u)
+    {
+        buffer[digitIndex++] = '0'; /* Add '0' to the buffer. */
+        buffer[digitIndex] = '\0';  /* Null-terminate the string. */
+    }
+    else
+    {
+        /* Extract digits from the number and store them in reverse order in the temp buffer. */
+        while (value > 0u)
+        {
+            temp[digitIndex++] = (value % 10u) + '0'; /* Get the last digit and convert to a character. */
+            value /= 10u;                             /* Remove the last digit from the number. */
+        }
+
+        /* Reverse the digits from the temp buffer into the final buffer. */
+        for (reverseIndex = 0u; reverseIndex < digitIndex; reverseIndex++)
+        {
+            buffer[reverseIndex] = temp[digitIndex - 1u - reverseIndex];
+        }
+        buffer[reverseIndex] = '\0'; /* Null-terminate the string. */
+    }
+
+    return reverseIndex; /* Return the length of the resulting string. */
 }
