@@ -32,6 +32,12 @@
   */
 bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output);
 
-void Convert_ID_Data_To_UARTString(uint32_t id, uint32_t data, uint8_t *outputBuffer);
+/**
+  * @brief  Function to convert ID and Data to a UART string that can be printed out
+  * @param[in]  id       ID of the frame
+  * @param[in]  data     Data of the frame
+  * @param[out] outputBuffer  Pointer to store the output string
+  */
+void APP_Compose_UARTFrame(uint32_t id, uint32_t data, uint8_t *outputBuffer);
 
 #endif /* APP_DATAPROCESSING_H_ */

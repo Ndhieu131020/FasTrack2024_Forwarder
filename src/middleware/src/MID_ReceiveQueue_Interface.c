@@ -22,7 +22,7 @@ static bool QueueReceive_isEmpty( const CircularQueueReceive_t *const pQueue );
 /* Initialize for QueueReceive */
 void MID_Receive_Queue_Init( void )
 {
-    uint8_t index = 0u;
+    uint16_t index = 0u;
 
     receiveQueue.front    = -1;
     receiveQueue.rear     = -1;

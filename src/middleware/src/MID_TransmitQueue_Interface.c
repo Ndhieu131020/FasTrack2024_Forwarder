@@ -33,7 +33,7 @@ static CircularQueueTransmit_t transmitQueue;
   */
 void MID_Transmit_Queue_Init(void)
 {
-    uint8_t index = 0u;
+    uint16_t index = 0u;
 
     transmitQueue.front    = -1;
     transmitQueue.rear     = -1;

@@ -10,6 +10,9 @@
  * Definition
  ******************************************************************************/
 
+#define DECIMAL_BASE  (10u)
+#define MAX_VALUE_STR  (5u)
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -72,7 +75,13 @@ bool App_Parser_UARTFrame(const uint8_t* str, int length, ReceiveFrame_t *Output
     return true;
 }
 
-void Convert_ID_Data_To_UARTString(uint32_t id, uint32_t data, uint8_t *outputBuffer)
+/**
+ * @brief  Function to convert ID and Data to a UART string that can be printed out
+ * @param[in]  id       ID of the frame
+ * @param[in]  data     Data of the frame
+ * @param[out] outputBuffer  Pointer to store the output string
+ */
+void APP_Compose_UARTFrame(uint32_t id, uint32_t data, uint8_t *outputBuffer)
 {
     uint8_t *ptr = outputBuffer;
 
@@ -87,25 +96,34 @@ void Convert_ID_Data_To_UARTString(uint32_t id, uint32_t data, uint8_t *outputBu
     *ptr = '\0';
 }
 
+/**
+ * @brief  Converts an unsigned integer to a null-terminated string in decimal (base 10) format.
+ *
+ * @param[in]  value   The unsigned integer to be converted.
+ * @param[out] buffer  The buffer where the resulting string will be stored.
+ *
+ * @return  The length of the resulting string.
+ */
 static uint8_t UIntToString(uint32_t value, uint8_t *buffer)
 {
-    uint8_t temp[10];              /* Temporary buffer to store digits in reverse order.    */
-    uint8_t digitIndex = 0u;     /* Index for storing digits in the temporary buffer.     */
-    uint8_t reverseIndex = 0u;   /* Index for reversing the digits into the final buffer. */
+    uint8_t temp[MAX_VALUE_STR];  /* Temporary buffer to store digits in reverse order.    */
+    uint8_t digitIndex = 0u;      /* Index for storing digits in the temporary buffer.     */
+    uint8_t reverseIndex = 0u;    /* Index for reversing the digits into the final buffer. */
 
     /* Handle the special case where the value is 0. */
     if (value == 0u)
     {
         buffer[digitIndex++] = '0'; /* Add '0' to the buffer. */
         buffer[digitIndex] = '\0';  /* Null-terminate the string. */
+        reverseIndex = digitIndex;
     }
     else
     {
         /* Extract digits from the number and store them in reverse order in the temp buffer. */
         while (value > 0u)
         {
-            temp[digitIndex++] = (value % 10u) + '0'; /* Get the last digit and convert to a character. */
-            value /= 10u;                             /* Remove the last digit from the number. */
+            temp[digitIndex++] = (value % DECIMAL_BASE) + '0'; /* Get the last digit and convert to a character. */
+            value /= DECIMAL_BASE;                             /* Remove the last digit from the number. */
         }
 
         /* Reverse the digits from the temp buffer into the final buffer. */

@@ -19,7 +19,9 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
-#define MSG_LENGTH_MAX    9u
+
+#define MSG_LENGTH_MAX    10u
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -42,6 +44,7 @@ uint8_t Transmit_Data_Str[MSG_LENGTH_MAX] = {0};
 uint8_t Transmit_Data_Idx                 = 0u;
 
 ReceiveFrame_t Processing_Msg = {0};
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -202,7 +205,7 @@ static void App_Handle_DataFromDistanceSensor(void)
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
     /**/
-    Convert_ID_Data_To_UARTString(Processing_Msg.ID, Processing_Msg.Data, Transmit_Data_Str);
+    APP_Compose_UARTFrame(Processing_Msg.ID, Processing_Msg.Data, Transmit_Data_Str);
 
     while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
     {
