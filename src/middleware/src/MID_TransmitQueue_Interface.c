@@ -35,9 +35,10 @@ void MID_Transmit_Queue_Init(void)
 {
     int16_t index = 0u;
 
-    QUEUE_TypedefStructure.Front = -1;
-    QUEUE_TypedefStructure.Rear  = -1;
-    QUEUE_TypedefStructure.Size  = TRANSMIT_QUEUE_SIZE;
+    QUEUE_TypedefStructure.Front    = -1;
+    QUEUE_TypedefStructure.Rear     = -1;
+    QUEUE_TypedefStructure.Capacity = 0u;
+    QUEUE_TypedefStructure.Size     = TRANSMIT_QUEUE_SIZE;
 
     for (index = 0; index < TRANSMIT_QUEUE_SIZE; index++)
     {
@@ -99,6 +100,7 @@ QueueCheckOperation_t MID_Transmit_Queue_Enqueue(uint8_t data)
 
         /* Increase rear pointer */
         QUEUE_TypedefStructure.Rear = (QUEUE_TypedefStructure.Rear + 1) % QUEUE_TypedefStructure.Size;
+        (QUEUE_TypedefStructure.Capacity)++;
 
         QUEUE_TypedefStructure.Data[QUEUE_TypedefStructure.Rear] = data;
 
@@ -125,7 +127,8 @@ QueueCheckOperation_t MID_Transmit_Queue_Dequeue(uint8_t *data)
     if(!MID_Transmit_Queue_isEmpty())
     {
         *data = QUEUE_TypedefStructure.Data[QUEUE_TypedefStructure.Front];
-
+        (QUEUE_TypedefStructure.Capacity)--;
+        
         if(QUEUE_TypedefStructure.Front == QUEUE_TypedefStructure.Rear)
         {
             QUEUE_TypedefStructure.Front = -1;
