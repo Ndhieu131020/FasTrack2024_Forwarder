@@ -31,6 +31,7 @@ static void App_UART_TxNotification(void);
 static void App_UART_RxNotification(void);
 
 static void App_Handle_DataFromDistanceSensor(void);
+static void App_Handle_DataFromRotationSensor(void);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -76,8 +77,13 @@ int main(void)
             {
             /* If received data message from Distance sensor node */
             case RX_DISTANCE_DATA_ID:
-                /* Send confirm message to distance sensor node*/
+                /* Send confirm message to Distance sensor node*/
                 App_Handle_DataFromDistanceSensor();
+                break;
+            /* If received data message from Rotation sensor node */
+            case RX_ROTATION_DATA_ID:
+                /* Send confirm message to Rotation sensor node */
+                App_Handle_DataFromRotationSensor();
                 break;
             default:
                 break;
@@ -204,10 +210,26 @@ static void App_Handle_DataFromDistanceSensor(void)
 {
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
-    /**/
-    APP_Compose_UARTFrame(Processing_Msg.ID, Processing_Msg.Data, Transmit_Data_Str);
-
+    /* Convert message for uart transfer */
+    APP_Compose_UARTFrame(DISTANCE_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
+    /* Push message to transmit queue and enable Tx interrupt to send */
     while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+    {
+        MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+        Transmit_Data_Idx++;
+    }
+    MID_UART_SetTxInterrupt(true);
+    Transmit_Data_Idx = 0u;
+}
+
+static void App_Handle_DataFromRotationSensor(void)
+{
+    /* Send confirm message to rotation sensor */
+    MID_CAN_SendCANMessage(TX_CONFIRM_ROTATION_DATA_MB, TX_MSG_CONFIRM_DATA);
+    /* Convert message for uart transfer */
+    APP_Compose_UARTFrame(ROTATION_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
+    /* Push message to transmit queue and enable Tx interrupt to send */
+    while(Transmit_Data_Str[Transmit_Data_Idx] != '\0')
     {
         MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
         Transmit_Data_Idx++;
