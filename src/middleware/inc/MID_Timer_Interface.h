@@ -28,24 +28,24 @@
   */
 #define D_NODE_COMMINGDATA_CNT          0u  /* Counter for incoming data from Distance Sensor Node */
 #define R_NODE_COMMINGDATA_CNT          1u  /* Counter for incoming data from Rotation Sensor Node */
-#define D_NODE_RESPONDCONNECTION_CNT    3u  /* Counter for Distance Sensor Node connection response */
-#define R_NODE_RESPONDCONNECTION_CNT    4u  /* Counter for Rotation Sensor Node connection response */
+#define D_NODE_RESPONDCONNECTION_CNT    2u  /* Counter for Distance Sensor Node connection response */
+#define R_NODE_RESPONDCONNECTION_CNT    3u  /* Counter for Rotation Sensor Node connection response */
 
 /** @defgroup Gate controller for Timeout Counter
   * @{
   */
 #define D_NODE_COMMINGDATA_GATE          0u  /* Gate control for Distance Sensor Node incoming data */
 #define R_NODE_COMMINGDATA_GATE          1u  /* Gate control for Rotation Sensor Node incoming data */
-#define D_NODE_RESPONDCONNECTION_GATE    3u  /* Gate control for Rotation Sensor Node response */
-#define R_NODE_RESPONDCONNECTION_GATE    4u  /* Gate control for Rotation Sensor Node response */
+#define D_NODE_RESPONDCONNECTION_GATE    2u  /* Gate control for Rotation Sensor Node response */
+#define R_NODE_RESPONDCONNECTION_GATE    3u  /* Gate control for Rotation Sensor Node response */
 
 /** @defgroup Flag represent to Timeout Event
   * @{
   */
 #define D_NODE_TIMEOUT_EVENT            0u  /* Timeout event for Distance Sensor Node */
 #define R_NODE_TIMEOUT_EVENT            1u  /* Timeout event for Rotation Sensor Node */
-#define D_NODE_RESPOND_TIMEOUT_EVENT    3u  /* Timeout event for Distance Sensor Node response */
-#define R_NODE_RESPOND_TIMEOUT_EVENT    4u  /* Timeout event for Rotation Sensor Node response */
+#define D_NODE_RESPOND_TIMEOUT_EVENT    2u  /* Timeout event for Distance Sensor Node response */
+#define R_NODE_RESPOND_TIMEOUT_EVENT    3u  /* Timeout event for Rotation Sensor Node response */
 
 typedef enum
 {

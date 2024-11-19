@@ -33,6 +33,7 @@
 /** @defgroup Check Connection Message Data
   * @{
   */
+#define TX_MSG_REQUEST_DATA    0x10
 #define TX_MSG_CONFIRM_DATA    0xFF
 
 /** @defgroup Data Message

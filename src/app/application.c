@@ -34,6 +34,9 @@ static void App_Handle_DataFromDistanceSensor(void);
 static void App_Handle_DataFromRotationSensor(void);
 static void App_Handle_ConfirmConnectionFromDistanceSensor(void);
 static void App_Handle_ConfirmConnectionFromRotationSensor(void);
+static void App_Handle_RequestConnectFromPcToFw(void);
+static void App_Handle_RequestConnectFromPcToDistanceNode(void);
+static void App_Handle_RequestConnectFromPcToRotationNode(void);
 
 /*******************************************************************************
  * Variables
@@ -96,6 +99,15 @@ int main(void)
             case RX_CONFIRM_FROM_ROTATION_NODE_ID:
                 /* Send confirm connection to PC tool */
                 App_Handle_ConfirmConnectionFromRotationSensor();
+                break;
+            case PC_CONNECT_FORWARDER_ID:
+                App_Handle_RequestConnectFromPcToFw();
+                break;
+            case PC_CONNECT_DISTANCE_SENSOR_ID:
+                App_Handle_RequestConnectFromPcToDistanceNode();
+                break;
+            case PC_CONNECT_ROTATION_SENSOR_ID:
+                App_Handle_RequestConnectFromPcToRotationNode();
                 break;
             default:
                 break;
@@ -258,4 +270,37 @@ static void App_Handle_ConfirmConnectionFromRotationSensor(void)
     }
     MID_UART_SetTxInterrupt(true);
     Transmit_Data_Idx = 0u;
+}
+
+/**
+  * @brief  Handles the connection request from PC to Forwarder (FW).
+  *         This function composes a confirmation frame, enqueues it for transmission,
+  * and enables the UART transmission interrupt to send the data.
+  * @param  None
+  * @retval None
+  */
+static void App_Handle_RequestConnectFromPcToFw(void)
+{
+    /* FW send Confirm Connection between itself and PC */
+    APP_Compose_UARTFrame(PC_CONNECT_FORWARDER_ID, CONFIRM_CONNECTION_DATA, Transmit_Data_Str);
+    /* Push message to transmit queue and enable Tx interrupt to send */
+    while(Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+    {
+        MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+        Transmit_Data_Idx++;
+    }
+    MID_UART_SetTxInterrupt(true);
+    Transmit_Data_Idx = 0u;
+}
+
+static void App_Handle_RequestConnectFromPcToDistanceNode(void)
+{
+    /* Send connection request to distance sensor node */
+    MID_CAN_SendCANMessage(TX_RQ_CONNECT_DISTANCE_NODE_MB, TX_MSG_REQUEST_DATA);
+}
+
+static void App_Handle_RequestConnectFromPcToRotationNode(void)
+{
+    /* Send connection request to rotation sensor node */
+    MID_CAN_SendCANMessage(TX_RQ_CONNECT_ROTATION_NODE_MB, TX_MSG_REQUEST_DATA);
 }
