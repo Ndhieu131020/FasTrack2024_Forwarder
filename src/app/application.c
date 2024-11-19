@@ -32,6 +32,9 @@ static void App_UART_RxNotification(void);
 
 static void App_Handle_DataFromDistanceSensor(void);
 static void App_Handle_DataFromRotationSensor(void);
+static void App_Handle_ConfirmConnectionFromDistanceSensor(void);
+static void App_Handle_ConfirmConnectionFromRotationSensor(void);
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -84,6 +87,14 @@ int main(void)
             case RX_ROTATION_DATA_ID:
                 /* Send confirm message to Rotation sensor node */
                 App_Handle_DataFromRotationSensor();
+                break;
+            case RX_CONFIRM_FROM_DISTANCE_NODE_ID:
+                /* Send confirm connection to PC tool */
+                App_Handle_ConfirmConnectionFromDistanceSensor();
+                break;
+            case RX_CONFIRM_FROM_ROTATION_NODE_ID:
+                /* Send confirm connection to PC tool */
+                App_Handle_ConfirmConnectionFromRotationSensor();
                 break;
             default:
                 break;
@@ -209,6 +220,36 @@ static void App_Handle_DataFromRotationSensor(void)
     MID_CAN_SendCANMessage(TX_CONFIRM_ROTATION_DATA_MB, TX_MSG_CONFIRM_DATA);
     /* Convert message for uart transfer */
     APP_Compose_UARTFrame(ROTATION_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
+    /* Push message to transmit queue and enable Tx interrupt to send */
+    while(Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+    {
+        MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+        Transmit_Data_Idx++;
+    }
+    MID_UART_SetTxInterrupt(true);
+    Transmit_Data_Idx = 0u;
+}
+
+static void App_Handle_ConfirmConnectionFromDistanceSensor(void)
+{
+    /* FW receive Confirm Connection msg from Distance node */
+    /* FW send Confirm Connection to PC */
+    APP_Compose_UARTFrame(PC_CONNECT_DISTANCE_SENSOR_ID, CONFIRM_CONNECTION_DATA, Transmit_Data_Str);
+    /* Push message to transmit queue and enable Tx interrupt to send */
+    while(Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+    {
+        MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+        Transmit_Data_Idx++;
+    }
+    MID_UART_SetTxInterrupt(true);
+    Transmit_Data_Idx = 0u;
+}
+
+static void App_Handle_ConfirmConnectionFromRotationSensor(void)
+{
+    /* FW receive Confirm Connection msg from Rotation node */
+    /* FW send Confirm Connection to PC */
+    APP_Compose_UARTFrame(PC_CONNECT_ROTATION_SENSOR_ID, CONFIRM_CONNECTION_DATA, Transmit_Data_Str);
     /* Push message to transmit queue and enable Tx interrupt to send */
     while(Transmit_Data_Str[Transmit_Data_Idx] != '\0')
     {
