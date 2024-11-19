@@ -37,13 +37,13 @@ void MID_Timer_Init(void)
 
     DRV_LPIT_EnableModule(LPIT_INSTANCE);
 
-    DRV_LPIT_StopTimerChannel(LPIT_INSTANCE, LPIT_CH0);
+    DRV_LPIT_StopTimerChannel(LPIT_INSTANCE, TIMEOUT_COUNTER_CHANNEL);
 
     LPIT_InitStructure.LPIT_ChainChannel = DISABLE;
     LPIT_InitStructure.LPIT_OperationMode = Periodic_Cnt_32b;
     LPIT_InitStructure.LPIT_Interupt = ENABLE;
 
-    DRV_LPIT_Init(LPIT_INSTANCE, LPIT_CH0, &LPIT_InitStructure);
+    DRV_LPIT_Init(LPIT_INSTANCE, TIMEOUT_COUNTER_CHANNEL, &LPIT_InitStructure);
 
     DRV_Clock_GetFrequency(LPIT0_CLK, &LPIT_Freq);
 
@@ -56,20 +56,20 @@ void MID_Timer_Init(void)
         /* Error */
     }
 
-    DRV_LPIT_SetReloadValue(LPIT_INSTANCE, LPIT_CH0, reloadValue);
+    DRV_LPIT_SetReloadValue(LPIT_INSTANCE, TIMEOUT_COUNTER_CHANNEL, reloadValue);
 }
 
 void MID_Timer_RegisterNotificationCallback(void (*cb_ptr)(void))
 {
-    DRV_LPIT0_RegisterIntCallback(LPIT_CH0, cb_ptr);
+    DRV_LPIT0_RegisterIntCallback(TIMEOUT_COUNTER_CHANNEL, cb_ptr);
 }
 
 void MID_Timer_StartTimer(void)
 {
-    DRV_LPIT_StartTimerChannel(LPIT_INSTANCE, LPIT_CH0);
+    DRV_LPIT_StartTimerChannel(LPIT_INSTANCE, TIMEOUT_COUNTER_CHANNEL);
 }
 
 void MID_Timer_StopTimer(void)
 {
-    DRV_LPIT_StopTimerChannel(LPIT_INSTANCE, LPIT_CH0);
+    DRV_LPIT_StopTimerChannel(LPIT_INSTANCE, TIMEOUT_COUNTER_CHANNEL);
 }

@@ -95,55 +95,36 @@ static void App_CANReceiveNotification(void)
     Data_Typedef CAN_Data_Receive = {0u};
 
     /* Struture contain Data was converted from CAN Message to be used as param input of MID_Receive_EnQueue()*/
-    ReceiveFrame_t l_Data_Receive   = {0U};
+    ReceiveFrame_t l_Data_Receive = {0U};
 
-   if(MID_CheckCommingMessageEvent(RX_DISTANCE_DATA_MB) == CAN_MSG_RECEIVED)
-   {
-        MID_CAN_ReceiveMessage(RX_DISTANCE_DATA_MB, &CAN_Data_Receive);
+    uint8_t index = 0u;
 
-        l_Data_Receive.ID = CAN_Data_Receive.ID;
-        l_Data_Receive.Data = CAN_Data_Receive.Data;
+    /* Array of mailbox IDs and their associated data */
+    static const uint8_t messageBoxes[] =
+    {
+        RX_DISTANCE_DATA_MB,
+        RX_ROTATION_DATA_MB,
+        RX_CONFIRM_FROM_DISTANCE_NODE_MB,
+        RX_CONFIRM_FROM_ROTATION_NODE_MB
+    };
 
-        MID_ClearMessageCommingEvent(RX_DISTANCE_DATA_MB);
-        /* Push distance data into queue */
-        (void)MID_Receive_EnQueue(&l_Data_Receive);
-   }
+    for (index = 0u; index < (sizeof(messageBoxes) / sizeof(messageBoxes[0])); index++)
+    {
+        if (MID_CheckCommingMessageEvent(messageBoxes[index]) == CAN_MSG_RECEIVED)
+        {
+            MID_CAN_ReceiveMessage(messageBoxes[index], &CAN_Data_Receive);
 
-   if(MID_CheckCommingMessageEvent(RX_ROTATION_DATA_MB) == CAN_MSG_RECEIVED)
-   {
-        MID_CAN_ReceiveMessage(RX_ROTATION_DATA_MB, &CAN_Data_Receive);
+            l_Data_Receive.ID = CAN_Data_Receive.ID;
+            l_Data_Receive.Data = CAN_Data_Receive.Data;
 
-        l_Data_Receive.ID = CAN_Data_Receive.ID;
-        l_Data_Receive.Data = CAN_Data_Receive.Data;
-
-        MID_ClearMessageCommingEvent(RX_ROTATION_DATA_MB);
-        /* Push rotation data into queue */
-        (void)MID_Receive_EnQueue(&l_Data_Receive);
-   }
-
-      if(MID_CheckCommingMessageEvent(RX_CONFIRM_FROM_DISTANCE_NODE_MB) == CAN_MSG_RECEIVED)
-   {
-        MID_CAN_ReceiveMessage(RX_CONFIRM_FROM_DISTANCE_NODE_MB, &CAN_Data_Receive);
-
-        l_Data_Receive.ID = CAN_Data_Receive.ID;
-        l_Data_Receive.Data = CAN_Data_Receive.Data;
-
-        MID_ClearMessageCommingEvent(RX_CONFIRM_FROM_DISTANCE_NODE_MB);
-        /* Push distance confirm data into queue */
-        (void)MID_Receive_EnQueue(&l_Data_Receive);
-   }
-
-   if(MID_CheckCommingMessageEvent(RX_CONFIRM_FROM_ROTATION_NODE_MB) == CAN_MSG_RECEIVED)
-   {
-        MID_CAN_ReceiveMessage(RX_CONFIRM_FROM_ROTATION_NODE_MB, &CAN_Data_Receive);
-
-        l_Data_Receive.ID = CAN_Data_Receive.ID;
-        l_Data_Receive.Data = CAN_Data_Receive.Data;
-
-        MID_ClearMessageCommingEvent(RX_CONFIRM_FROM_ROTATION_NODE_MB);
-        /* Push rotation confirm data into queue */
-        (void)MID_Receive_EnQueue(&l_Data_Receive);
-   }
+            MID_ClearMessageCommingEvent(messageBoxes[index]);
+            (void)MID_Receive_EnQueue(&l_Data_Receive);
+        }
+        else
+        {
+            /* Do nothing */
+        }
+    }
 }
 
 static void App_CANBusOffNotification(void)
@@ -205,7 +186,7 @@ static void App_Handle_DataFromDistanceSensor(void)
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
     /**/
-    APP_Compose_UARTFrame(Processing_Msg.ID, Processing_Msg.Data, Transmit_Data_Str);
+    APP_Compose_UARTFrame(DISTANCE_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
 
     while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
     {

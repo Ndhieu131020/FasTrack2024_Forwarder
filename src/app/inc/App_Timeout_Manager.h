@@ -1,12 +1,12 @@
 /*
- *  Filename: MID_Timer_Interface.h
+ *  Filename: App_Timeout_Manager.h
  *
- *  Created on: 11-05-2024
+ *  Created on: 11-19-2024
  *      Author: Ndhieu131020@gmail.com
 */
 
-#ifndef MID_TIMER_INTERFACE_H_
-#define MID_TIMER_INTERFACE_H_
+#ifndef APP_TIMEOUT_MANAGER_H_
+#define APP_TIMEOUT_MANAGER_H_
 
 /*******************************************************************************
  * Include
@@ -15,21 +15,9 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
-#define LPIT_INSTANCE     0u
-
-#define TIMEOUT_COUNTER_CHANNEL  LPIT_CH0
-
 
 /*******************************************************************************
  * API
  ******************************************************************************/
 
-void MID_Timer_Init(void);
-
-void MID_Timer_RegisterNotificationCallback(void (*cb_ptr)(void));
-
-void MID_Timer_StartTimer(void);
-
-void MID_Timer_StopTimer(void);
-
-#endif /* MID_TIMER_INTERFACE_H_ */
+#endif /* APP_TIMEOUT_MANAGER_H_ */
