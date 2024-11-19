@@ -210,9 +210,9 @@ static void App_Handle_DataFromDistanceSensor(void)
 {
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
-    /* Convert message for uart transfer */
+    /**/
     APP_Compose_UARTFrame(DISTANCE_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
-    /* Push message to transmit queue and enable Tx interrupt to send */
+
     while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
     {
         MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
