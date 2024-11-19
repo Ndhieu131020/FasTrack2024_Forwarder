@@ -55,19 +55,20 @@ ReceiveFrame_t Processing_Msg = {0};
 int main(void)
 {
     QueueCheckOperation_t status = QUEUE_DONE_FAILED;
+
     MID_Clock_Init();
     MID_CAN_Init();
-//    MID_Timer_Init();
+    MID_Timer_Init();
     MID_UART_Init();
     MID_Transmit_Queue_Init();
     MID_Receive_Queue_Init();
 
     MID_CAN_RegisterRxNotificationCallback(App_CANReceiveNotification);
     MID_CAN_RegisterBusOffNotificationCallback(App_CANBusOffNotification);
-    MID_UART_RegisterNotificationCallback(&App_UART_TxNotification, &App_UART_RxNotification);
+    MID_UART_RegisterNotificationCallback(App_UART_TxNotification, App_UART_RxNotification);
 
     MID_EnableNotification();
-//    MID_Timer_StartTimer();
+    MID_Timer_StartTimer();
 
     while(1)
     {
@@ -100,7 +101,6 @@ int main(void)
                 break;
             }
         }
-        status = QUEUE_DONE_FAILED;
     }
 
     return 0;
