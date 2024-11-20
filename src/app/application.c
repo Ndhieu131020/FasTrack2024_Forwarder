@@ -73,6 +73,9 @@ int main(void)
     MID_EnableNotification();
     MID_Timer_StartTimer();
 
+    MID_TimeoutService_CounterCmd(D_NODE_COMMINGDATA_GATE, ENABLE);
+    MID_TimeoutService_CounterCmd(R_NODE_COMMINGDATA_GATE, ENABLE);
+
     while(1)
     {
 
@@ -84,8 +87,9 @@ int main(void)
             {
             /* If received data message from Distance sensor node */
             case RX_DISTANCE_DATA_ID:
-                /* Send confirm message to Distance sensor node*/
                 App_Handle_DataFromDistanceSensor();
+                /* Reset timeout counter */
+                MID_TimeoutService_ResetCounter(D_NODE_COMMINGDATA_CNT);
                 break;
             /* If received data message from Rotation sensor node */
             case RX_ROTATION_DATA_ID:
@@ -95,6 +99,9 @@ int main(void)
             case RX_CONFIRM_FROM_DISTANCE_NODE_ID:
                 /* Send confirm connection to PC tool */
                 App_Handle_ConfirmConnectionFromDistanceSensor();
+                
+                MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
+
                 break;
             case RX_CONFIRM_FROM_ROTATION_NODE_ID:
                 /* Send confirm connection to PC tool */
@@ -112,6 +119,36 @@ int main(void)
             default:
                 break;
             }
+        }
+
+        if(MID_TimeoutService_GetEvent(D_NODE_TIMEOUT_EVENT) == EVENT_SET)
+        {
+            /* Send request connection message to Distance sensor node */
+            MID_CAN_SendCANMessage(TX_RQ_CONNECT_DISTANCE_NODE_MB, TX_MSG_REQUEST_DATA);
+            /* Start counter to calculate timeout for respond message from distance sensor node */
+            MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, ENABLE);
+            /* Reset state */
+            MID_TimeoutService_WriteEvent(D_NODE_TIMEOUT_EVENT, EVENT_NONE);
+            /* Reset timeout counter */
+            MID_TimeoutService_ResetCounter(D_NODE_COMMINGDATA_CNT);
+        }
+
+        if(MID_TimeoutService_GetEvent(D_NODE_RESPOND_TIMEOUT_EVENT) == EVENT_SET)
+        {
+            /**/
+            APP_Compose_UARTFrame(DISTANCE_DATA_ID, 0xFFFF, Transmit_Data_Str);
+
+            while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+            {
+                MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+                Transmit_Data_Idx++;
+            }
+            MID_UART_SetTxInterrupt(true);
+            Transmit_Data_Idx = 0u;
+
+            MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
+            /* Reset state */
+            MID_TimeoutService_WriteEvent(D_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
         }
     }
 
@@ -214,6 +251,7 @@ static void App_Handle_DataFromDistanceSensor(void)
 {
     /* Send confirm message to distance sensor node */
     MID_CAN_SendCANMessage(TX_CONFIRM_DISTANCE_DATA_MB, TX_MSG_CONFIRM_DATA);
+
     /**/
     APP_Compose_UARTFrame(DISTANCE_DATA_ID, Processing_Msg.Data, Transmit_Data_Str);
 

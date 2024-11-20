@@ -89,6 +89,15 @@ void MID_Timer_StopTimer(void);
 void MID_TimeoutService_WriteEvent(uint8_t instance, Event_Typedef event);
 
 /**
+  * @brief     Get a timeout event for a specific instance.
+  *
+  * @param[in] instance: The instance index for which the event is being set.
+  *            this parameter can be a value of @defgroup Flag represent to Timeout Event
+  * @retval    event:    The event type to be return (e.g., EVENT_SET, EVENT_NONE).
+  */
+Event_Typedef MID_TimeoutService_GetEvent(uint8_t instance);
+
+/**
   * @brief     Resets the timeout counter for a specific instance.
   *
   * @param[in] instance The instance index whose timeout counter needs to be reset.

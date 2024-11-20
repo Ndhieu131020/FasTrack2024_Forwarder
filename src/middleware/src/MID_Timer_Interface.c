@@ -153,6 +153,18 @@ void MID_TimeoutService_WriteEvent(uint8_t instance, Event_Typedef event)
 }
 
 /**
+  * @brief     Get a timeout event for a specific instance.
+  *
+  * @param[in] instance: The instance index for which the event is being set.
+  *            this parameter can be a value of @defgroup Flag represent to Timeout Event
+  * @retval    event:    The event type to be return (e.g., EVENT_SET, EVENT_NONE).
+  */
+Event_Typedef MID_TimeoutService_GetEvent(uint8_t instance)
+{
+    return Timeout_Event[instance];
+}
+
+/**
   * @brief     Resets the timeout counter for a specific instance.
   *
   * @param[in] instance The instance index whose timeout counter needs to be reset.
@@ -175,4 +187,5 @@ void MID_TimeoutService_ResetCounter(uint8_t instance)
 void MID_TimeoutService_CounterCmd(uint8_t instance, Functional_State state)
 {
     Counter_Gate[instance] = state;
+    Timeout_Counter[instance] = 0u;
 }
