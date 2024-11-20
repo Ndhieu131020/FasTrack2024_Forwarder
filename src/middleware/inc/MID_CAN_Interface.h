@@ -18,7 +18,7 @@
 
 #define FLEXCAN_INSTANCE        0u
 
-/** @defgroup Check Connection Message ID
+/** @defgroup Initialize Connection Message ID
   * @{
   */
 #define TX_RQ_CONNECT_DISTANCE_NODE_ID    0xE0
@@ -29,6 +29,15 @@
 
 #define TX_STOPOPR_DISTANCE_NODE_ID       0x30
 #define TX_STOPOPR_ROTATION_NODE_ID       0x31
+
+/** @defgroup Ping Message ID
+  * @{
+  */
+#define TX_PING_DISTANCE_NODE_ID          0x50
+#define TX_PING_ROTATION_NODE_ID          0x60
+
+#define RX_CONFIRM_PING_DISTANCE_NODE_ID  0x51
+#define RX_CONFIRM_PING_ROTATION_NODE_ID  0x61
 
 /** @defgroup Check Connection Message Data
   * @{
@@ -57,6 +66,9 @@
 #define TX_STOPOPR_DISTANCE_NODE_MB      4u
 #define TX_STOPOPR_ROTATION_NODE_MB      5u
 
+#define TX_PING_DISTANCE_NODE_MB         6u
+#define TX_PING_ROTATION_NODE_MB         7u
+
 /** @defgroup Allocate Rx mailboxs
   * @{
   */
@@ -65,6 +77,9 @@
 
 #define RX_CONFIRM_FROM_DISTANCE_NODE_MB    12u
 #define RX_CONFIRM_FROM_ROTATION_NODE_MB    13u
+
+#define RX_CONFIRM_PING_DISTANCE_NODE_MB    14u
+#define RX_CONFIRM_PING_ROTATION_NODE_MB    15u
 
 /** @defgroup New comming message state
   * @{
