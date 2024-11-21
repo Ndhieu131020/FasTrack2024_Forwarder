@@ -781,7 +781,7 @@ void DRV_FLEXCAN_RegisterMbCallback(uint8_t instance, void (*cb_ptr)(void))
 }
 
 /**
-  * @brief      Register Message Buffer Callback Function
+  * @brief      Register Bus off Callback Function
   * @param[in]  instance: Identifies which FlexCAN module
   * @param[in]  cb_ptr: Pointer to callback function
   * @retval     None
