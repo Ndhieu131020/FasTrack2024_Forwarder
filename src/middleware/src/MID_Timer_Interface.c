@@ -19,7 +19,7 @@
 #define MS_TO_SECOND       1000u /* Conversion factor from milliseconds to seconds */
 
 #define TIMEOUT_THRESHOLD    10u /* Timeout threshold for triggering events */
-#define COUNTER_INSTANCE     4u
+#define COUNTER_INSTANCE     6u
 
 /*******************************************************************************
  * Prototypes

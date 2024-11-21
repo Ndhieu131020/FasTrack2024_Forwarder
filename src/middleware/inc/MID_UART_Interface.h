@@ -24,7 +24,8 @@
 #define ROTATION_DATA_ID   0xC0
 #define DISTANCE_DATA_ID   0xD0
 
-#define CONFIRM_SENSOR_DATA    0xFFFF
+#define CONFIRM_SENSOR_DATA      0xFFFF
+#define SENSOR_DISCONNECT_DATA   0xFFFF
 
 /*******************************************************************************
  * API

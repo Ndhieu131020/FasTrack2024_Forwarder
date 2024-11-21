@@ -21,6 +21,10 @@
  ******************************************************************************/
 #define MSG_LENGTH_MAX    12u
 
+#define IDLE         0u
+#define STOP         1u
+#define RUNNING      2u
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -54,6 +58,10 @@ static uint8_t Transmit_Data_Idx                 = 0u;
 /* Lastest sensor value */
 static uint16_t Current_D_Value = 0u;
 static uint16_t Current_R_Value = 0u;
+
+/* Sensor node operation status */
+static uint8_t D_Node_State = IDLE;
+static uint8_t R_Node_State = IDLE;
 
 static ReceiveFrame_t Processing_Msg = {0};
 
@@ -102,6 +110,8 @@ int main(void)
                 App_Handle_DataFromDistanceSensor();
                 /* Reset timeout counter */
                 MID_TimeoutService_ResetCounter(D_NODE_COMMINGDATA_CNT);
+                /* Start counter to calculate timeout for respond data message from Pc Tool */
+                MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, ENABLE);
                 break;
             /* If received data message from Rotation sensor node */
             case RX_ROTATION_DATA_ID:
@@ -109,6 +119,8 @@ int main(void)
                 App_Handle_DataFromRotationSensor();
                 /* Reset timeout counter */
                 MID_TimeoutService_ResetCounter(R_NODE_COMMINGDATA_CNT);
+                /* Start counter to calculate timeout for respond data message from Pc Tool */
+                MID_TimeoutService_CounterCmd(PC_RES_ROTATION_DATA_GATE, ENABLE);
                 break;
             /* If receive confirm request connection message to intialize PC Tool */
             case RX_CONFIRM_FROM_DISTANCE_NODE_ID:
@@ -143,6 +155,15 @@ int main(void)
             /* If received request connection message from PC Tool to rotation sensor node */
             case PC_CONNECT_ROTATION_SENSOR_ID:
                 App_Handle_RequestConnectFromPcToRotationNode();
+                break;
+            case DISTANCE_DATA_ID:
+                /* Disable timeout counter */
+                MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, DISABLE);
+
+                break;
+            case ROTATION_DATA_ID:
+                /* Disable timeout counter */
+                MID_TimeoutService_CounterCmd(PC_RES_ROTATION_DATA_GATE, DISABLE);
                 break;
             default:
                 break;
@@ -487,6 +508,15 @@ static void App_Handle_ReceivePingFromRotationNode(void)
     Transmit_Data_Idx = 0u;
 }
 
+void App_Handle_ConfirmDataFromForwarder(void)
+{
+    if(D_Node_State == STOP)
+    {
+        MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_WAKEUP_DATA);
+        D_Node_State = RUNNING;
+    }
+}
+
 /**
   * @brief Handles timeout events related to the distance sensor node.
   *
@@ -544,7 +574,7 @@ static void App_Handle_TimeoutEvent(void)
     if(MID_TimeoutService_GetEvent(R_NODE_RESPOND_TIMEOUT_EVENT) == EVENT_SET)
     {
         /* Compress to UART String */
-        APP_Compose_UARTFrame(ROTATION_DATA_ID, 0xFFFF, Transmit_Data_Str);
+        APP_Compose_UARTFrame(ROTATION_DATA_ID, SENSOR_DISCONNECT_DATA, Transmit_Data_Str);
 
         while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
         {
@@ -557,5 +587,19 @@ static void App_Handle_TimeoutEvent(void)
         MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
         /* Reset state */
         MID_TimeoutService_WriteEvent(R_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
+    }
+
+    if(MID_TimeoutService_GetEvent(PC_RES_DISTANCE_DATA_TIMEOUT_EVENT) == EVENT_SET)
+    {
+        if(D_Node_State != STOP)
+        {
+            MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_STOPOPR_DATA);
+
+            MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, DISABLE);
+            /* Reset state */
+            MID_TimeoutService_WriteEvent(PC_RES_DISTANCE_DATA_TIMEOUT_EVENT, EVENT_NONE);
+            /* Set status of Distance node as Stop opreation */
+            D_Node_State = STOP;
+        }
     }
 }

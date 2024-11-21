@@ -28,7 +28,10 @@
 #define RX_CONFIRM_FROM_ROTATION_NODE_ID  0xF1
 
 #define TX_STOPOPR_DISTANCE_NODE_ID       0x30
-#define TX_STOPOPR_ROTATION_NODE_ID       0x31
+#define TX_STOPOPR_ROTATION_NODE_ID       0x40
+
+#define RX_CONFIRM_STOPOPR_DNODE_ID       0x31
+#define RX_CONFIRM_STOPOPR_RNODE_ID       0x41
 
 /** @defgroup Ping Message ID
   * @{
@@ -54,6 +57,9 @@
 #define TX_CONFIRM_ROTATION_DATA_ID  0x11
 #define TX_CONFIRM_DISTANCE_DATA_ID  0x21
 
+#define TX_STOPOPR_DATA   0x10
+#define TX_WAKEUP_DATA    0xFF
+
 /** @defgroup Allocate Tx mailboxs
   * @{
   */
@@ -72,6 +78,9 @@
 /** @defgroup Allocate Rx mailboxs
   * @{
   */
+#define RX_CONFIRM_STOPOPR_DNODE_MB         8u
+#define RX_CONFIRM_STOPOPR_RNODE_MB         9u
+
 #define RX_DISTANCE_DATA_MB                 10u
 #define RX_ROTATION_DATA_MB                 11u
 
