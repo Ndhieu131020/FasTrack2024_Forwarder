@@ -41,6 +41,7 @@ static void App_Handle_RequestConnectFromPcToDistanceNode(void);
 static void App_Handle_RequestConnectFromPcToRotationNode(void);
 static void App_Handle_ReceivePingFromDistanceNode(void);
 static void App_Handle_ReceivePingFromRotationNode(void);
+static void App_Handle_ConfirmDataFromForwarder(void);
 static void App_Handle_TimeoutEvent(void);
 
 /*******************************************************************************
@@ -158,8 +159,8 @@ int main(void)
                 break;
             case DISTANCE_DATA_ID:
                 /* Disable timeout counter */
+                App_Handle_ConfirmDataFromForwarder();
                 MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, DISABLE);
-
                 break;
             case ROTATION_DATA_ID:
                 /* Disable timeout counter */
@@ -508,7 +509,7 @@ static void App_Handle_ReceivePingFromRotationNode(void)
     Transmit_Data_Idx = 0u;
 }
 
-void App_Handle_ConfirmDataFromForwarder(void)
+static void App_Handle_ConfirmDataFromForwarder(void)
 {
     if(D_Node_State == STOP)
     {
