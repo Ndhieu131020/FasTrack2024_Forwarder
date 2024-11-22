@@ -30,8 +30,7 @@
 #define R_NODE_COMMINGDATA_CNT          1u  /* Counter for incoming data from Rotation Sensor Node */
 #define D_NODE_RESPONDCONNECTION_CNT    2u  /* Counter for Distance Sensor Node connection response */
 #define R_NODE_RESPONDCONNECTION_CNT    3u  /* Counter for Rotation Sensor Node connection response */
-#define PC_RES_DISTANCE_DATA_CNT        4u  /* Counter for respond message of distance data from Pc Tool */
-#define PC_RES_ROTATION_DATA_CNT        5u  /* Counter for respond message of rotation data from Pc Tool */
+#define PC_RESPOND_DATA_CNT             4u  /* Counter for respond message of data from Pc Tool */
 
 /** @defgroup Gate controller for Timeout Counter
   * @{
@@ -40,8 +39,7 @@
 #define R_NODE_COMMINGDATA_GATE          1u  /* Gate control for Rotation Sensor Node incoming data */
 #define D_NODE_RESPONDCONNECTION_GATE    2u  /* Gate control for Rotation Sensor Node response */
 #define R_NODE_RESPONDCONNECTION_GATE    3u  /* Gate control for Rotation Sensor Node response */
-#define PC_RES_DISTANCE_DATA_GATE        4u  /* Gate control for respond message from Pc Tool */
-#define PC_RES_ROTATION_DATA_GATE        5u  /* Gate control for respond message from Pc Tool */
+#define PC_RESPOND_DATA_GATE             4u  /* Gate control for respond message from Pc Tool */
 
 /** @defgroup Flag represent to Timeout Event
   * @{
@@ -50,8 +48,7 @@
 #define R_NODE_TIMEOUT_EVENT                  1u  /* Timeout event for Rotation Sensor Node */
 #define D_NODE_RESPOND_TIMEOUT_EVENT          2u  /* Timeout event for Distance Sensor Node response */
 #define R_NODE_RESPOND_TIMEOUT_EVENT          3u  /* Timeout event for Rotation Sensor Node response */
-#define PC_RES_DISTANCE_DATA_TIMEOUT_EVENT    4u  /* Timeout event for respond message from Pc Tool */
-#define PC_RES_ROTATION_DATA_TIMEOUT_EVENT    5u  /* Timeout event for respond message from Pc Tool */
+#define PC_RESPOND_DATA_TIMEOUT_EVENT         4u  /* Timeout event for respond message from Pc Tool */
 
 typedef enum
 {
