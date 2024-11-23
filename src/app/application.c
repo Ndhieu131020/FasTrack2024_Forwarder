@@ -69,6 +69,10 @@ static uint8_t PcTool_Timer_Lock_State = UNLOCK;
 
 static ReceiveFrame_t Processing_Msg = {0};
 
+/*   Variables to track if timeout notification has been sent to user layer for Distance and Rotation sensor node */
+static bool g_Dnode_isTimeoutNotified = false; /* Distance sensor node timeout notification flag */
+static bool g_Rnode_isTimeoutNotified = false; /* Rotation sensor node timeout notification flag */
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -165,6 +169,11 @@ int main(void)
 
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
+
+                /* Reset timeout counter */
+                MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
+
+                g_Dnode_isTimeoutNotified = false;
                 break;
 
             /* If receive confirm ping message from rotation node */
@@ -173,6 +182,11 @@ int main(void)
 
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
+
+                /* Reset timeout counter */
+                MID_TimeoutService_ResetCounter(R_NODE_RESPONDCONNECTION_CNT);
+
+                g_Rnode_isTimeoutNotified = false;
                 break;
 
             /* If received request connection message from PC Tool to itself */
@@ -341,7 +355,7 @@ static void App_UART_RxNotification(void)
     else
     {
         /* Convert string to number */
-        App_Parser_UARTFrame(Receive_Data_Str, Receive_Data_Idx-1, &l_Data_Receive);
+        App_Parser_UARTFrame(Receive_Data_Str, Receive_Data_Idx, &l_Data_Receive);
 
         /* Push to receive Queue */
         (void)MID_Receive_EnQueue(&l_Data_Receive);
@@ -601,18 +615,24 @@ static void App_Handle_TimeoutEvent(void)
 
     if(MID_TimeoutService_GetEvent(D_NODE_RESPOND_TIMEOUT_EVENT) == EVENT_SET)
     {
-        /* Compress to UART String */
-        APP_Compose_UARTFrame(DISTANCE_DATA_ID, 0xFFFF, Transmit_Data_Str);
-
-        while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+        if (g_Dnode_isTimeoutNotified == false)
         {
-            MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
-            Transmit_Data_Idx++;
+            /* Compress to UART String */
+            APP_Compose_UARTFrame(DISTANCE_DATA_ID, SENSOR_DISCONNECT_DATA, Transmit_Data_Str);
+
+            while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+            {
+                MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+                Transmit_Data_Idx++;
+            }
+            MID_UART_SetTxInterrupt(true);
+            Transmit_Data_Idx = 0u;
+
+            g_Dnode_isTimeoutNotified = true;
         }
-        MID_UART_SetTxInterrupt(true);
-        Transmit_Data_Idx = 0u;
 
         MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
+        MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
         /* Reset state */
         MID_TimeoutService_WriteEvent(D_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
     }
@@ -631,18 +651,24 @@ static void App_Handle_TimeoutEvent(void)
 
     if(MID_TimeoutService_GetEvent(R_NODE_RESPOND_TIMEOUT_EVENT) == EVENT_SET)
     {
-        /* Compress to UART String */
-        APP_Compose_UARTFrame(ROTATION_DATA_ID, SENSOR_DISCONNECT_DATA, Transmit_Data_Str);
-
-        while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+        if (g_Rnode_isTimeoutNotified == false)
         {
-            MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
-            Transmit_Data_Idx++;
+            /* Compress to UART String */
+            APP_Compose_UARTFrame(ROTATION_DATA_ID, SENSOR_DISCONNECT_DATA, Transmit_Data_Str);
+
+            while (Transmit_Data_Str[Transmit_Data_Idx] != '\0')
+            {
+                MID_Transmit_Enqueue(Transmit_Data_Str[Transmit_Data_Idx]);
+                Transmit_Data_Idx++;
+            }
+            MID_UART_SetTxInterrupt(true);
+            Transmit_Data_Idx = 0u;
+
+            g_Rnode_isTimeoutNotified = true;
         }
-        MID_UART_SetTxInterrupt(true);
-        Transmit_Data_Idx = 0u;
 
         MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
+        MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
         /* Reset state */
         MID_TimeoutService_WriteEvent(R_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
     }
