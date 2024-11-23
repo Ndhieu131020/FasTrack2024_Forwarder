@@ -21,12 +21,13 @@
  ******************************************************************************/
 #define MSG_LENGTH_MAX    12u
 
-#define IDLE         0u
-#define STOP         1u
-#define RUNNING      2u
+#define IDLE              0u
+#define STOP              1u
+#define RUNNING           2u
 
-#define LOCK      0u
-#define UNLOCK    1u
+#define D_LOCK            0u
+#define R_LOCK            1u
+#define UNLOCK            2u
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -125,7 +126,7 @@ int main(void)
                 {
                     /* Start counter to calculate timeout for respond data message from Pc Tool */
                     MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
-                    PcTool_Timer_Lock_State = LOCK;
+                    PcTool_Timer_Lock_State = D_LOCK;
                 }
 
                 break;
@@ -143,7 +144,7 @@ int main(void)
                 {
                     /* Start counter to calculate timeout for respond data message from Pc Tool */
                     MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
-                    PcTool_Timer_Lock_State = LOCK;
+                    PcTool_Timer_Lock_State = R_LOCK;
                 }
 
                 break;
@@ -170,9 +171,6 @@ int main(void)
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
 
-                /* Reset timeout counter */
-                MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
-
                 g_Dnode_isTimeoutNotified = false;
                 break;
 
@@ -182,9 +180,6 @@ int main(void)
 
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
-
-                /* Reset timeout counter */
-                MID_TimeoutService_ResetCounter(R_NODE_RESPONDCONNECTION_CNT);
 
                 g_Rnode_isTimeoutNotified = false;
                 break;
@@ -212,9 +207,12 @@ int main(void)
             case DISTANCE_DATA_ID:
                 App_Handle_ConfirmDataFromPCTool();
 
-                /* Disable timeout counter */
-                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
-                PcTool_Timer_Lock_State = UNLOCK;
+                if (PcTool_Timer_Lock_State == D_LOCK)
+                {
+                    /* Disable timeout counter */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                    PcTool_Timer_Lock_State = UNLOCK;
+                }
 
                 break;
 
@@ -222,9 +220,12 @@ int main(void)
             case ROTATION_DATA_ID:
                 App_Handle_ConfirmDataFromPCTool();
 
-                /* Disable timeout counter */
-                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
-                PcTool_Timer_Lock_State = UNLOCK;
+                if (PcTool_Timer_Lock_State == R_LOCK)
+                {
+                    /* Disable timeout counter */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                    PcTool_Timer_Lock_State = UNLOCK;
+                }
 
                 break;
 
@@ -632,7 +633,6 @@ static void App_Handle_TimeoutEvent(void)
         }
 
         MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
-        MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
         /* Reset state */
         MID_TimeoutService_WriteEvent(D_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
     }
@@ -668,7 +668,6 @@ static void App_Handle_TimeoutEvent(void)
         }
 
         MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
-        MID_TimeoutService_ResetCounter(D_NODE_RESPONDCONNECTION_CNT);
         /* Reset state */
         MID_TimeoutService_WriteEvent(R_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
     }
