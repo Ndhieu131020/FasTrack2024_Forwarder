@@ -25,6 +25,8 @@
 #define STOP         1u
 #define RUNNING      2u
 
+#define LOCK      0u
+#define UNLOCK    1u
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -62,6 +64,8 @@ static uint16_t Current_R_Value = 0u;
 
 /* Sensor node operation status */
 static uint8_t Node_State = IDLE;
+/* Sensor node operation status */
+static uint8_t PcTool_Timer_Lock_State = UNLOCK;
 
 static ReceiveFrame_t Processing_Msg = {0};
 
@@ -112,8 +116,13 @@ int main(void)
                 /* Send confirm message to Distance sensor node */
                 App_Handle_DataFromDistanceSensor();
 
-                /* Start counter to calculate timeout for respond data message from Pc Tool */
-                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
+                if(PcTool_Timer_Lock_State == UNLOCK)
+                {
+                    /* Start counter to calculate timeout for respond data message from Pc Tool */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
+                    PcTool_Timer_Lock_State = LOCK;
+                }
+
                 break;
 
             /* If received data message from Rotation sensor node */
@@ -124,6 +133,14 @@ int main(void)
 
                 /* Reset timeout counter */
                 MID_TimeoutService_ResetCounter(R_NODE_COMMINGDATA_CNT);
+
+                if(PcTool_Timer_Lock_State == UNLOCK)
+                {
+                    /* Start counter to calculate timeout for respond data message from Pc Tool */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
+                    PcTool_Timer_Lock_State = LOCK;
+                }
+
                 break;
 
             /* If receive confirm request connection message to intialize PC Tool */
@@ -169,19 +186,30 @@ int main(void)
 
             /* If received request connection message from PC Tool to rotation sensor node */
             case PC_CONNECT_ROTATION_SENSOR_ID:
+            
                 App_Handle_RequestConnectFromPcToRotationNode();
                 break;
 
+            /* If received confirm data from PC Tools */
             case DISTANCE_DATA_ID:
                 App_Handle_ConfirmDataFromPCTool();
 
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                PcTool_Timer_Lock_State = UNLOCK;
+
                 break;
 
+            /* If received confirm data from PC Tools */
             case ROTATION_DATA_ID:
+                App_Handle_ConfirmDataFromPCTool();
+
                 /* Disable timeout counter */
+                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                PcTool_Timer_Lock_State = UNLOCK;
+
                 break;
+
             default:
                 break;
             }
