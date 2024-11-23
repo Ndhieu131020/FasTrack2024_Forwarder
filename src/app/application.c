@@ -25,6 +25,8 @@
 #define STOP         1u
 #define RUNNING      2u
 
+#define LOCK      0u
+#define UNLOCK    1u
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -41,8 +43,7 @@ static void App_Handle_RequestConnectFromPcToDistanceNode(void);
 static void App_Handle_RequestConnectFromPcToRotationNode(void);
 static void App_Handle_ReceivePingFromDistanceNode(void);
 static void App_Handle_ReceivePingFromRotationNode(void);
-static void App_Handle_ConfirmDistanceDataFromForwarder(void);
-static void App_Handle_ConfirmRotationDataFromForwarder(void);
+static void App_Handle_ConfirmDataFromPCTool(void);
 static void App_Handle_TimeoutEvent(void);
 
 /*******************************************************************************
@@ -62,8 +63,9 @@ static uint16_t Current_D_Value = 0u;
 static uint16_t Current_R_Value = 0u;
 
 /* Sensor node operation status */
-static uint8_t D_Node_State = IDLE;
-static uint8_t R_Node_State = IDLE;
+static uint8_t Node_State = IDLE;
+/* Sensor node operation status */
+static uint8_t PcTool_Timer_Lock_State = UNLOCK;
 
 static ReceiveFrame_t Processing_Msg = {0};
 
@@ -96,7 +98,7 @@ int main(void)
     /* Enable timeout gate for data message */
     MID_TimeoutService_CounterCmd(D_NODE_COMMINGDATA_GATE, ENABLE);
     MID_TimeoutService_CounterCmd(R_NODE_COMMINGDATA_GATE, ENABLE);
-    MID_TimeoutService_CounterCmd(PC_RESQUEST_CONNECT_TIMEOUT_EVENT, ENABLE);
+    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_CNT, ENABLE);
 
     while(1)
     {
@@ -109,44 +111,70 @@ int main(void)
             {
             /* If received data message from Distance sensor node */
             case RX_DISTANCE_DATA_ID:
-                /* Send confirm message to Distance sensor node */
-                App_Handle_DataFromDistanceSensor();
                 /* Reset timeout counter */
                 MID_TimeoutService_ResetCounter(D_NODE_COMMINGDATA_CNT);
-                // /* Start counter to calculate timeout for respond data message from Pc Tool */
-                // MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, ENABLE);
+
+                /* Send confirm message to Distance sensor node */
+                App_Handle_DataFromDistanceSensor();
+
+                if(PcTool_Timer_Lock_State == UNLOCK)
+                {
+                    /* Start counter to calculate timeout for respond data message from Pc Tool */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
+                    PcTool_Timer_Lock_State = LOCK;
+                }
+
                 break;
+
             /* If received data message from Rotation sensor node */
             case RX_ROTATION_DATA_ID:
+
                 /* Send confirm message to Rotation sensor node */
                 App_Handle_DataFromRotationSensor();
+
                 /* Reset timeout counter */
                 MID_TimeoutService_ResetCounter(R_NODE_COMMINGDATA_CNT);
-                // /* Start counter to calculate timeout for respond data message from Pc Tool */
-                // MID_TimeoutService_CounterCmd(PC_RES_ROTATION_DATA_GATE, ENABLE);
+
+                if(PcTool_Timer_Lock_State == UNLOCK)
+                {
+                    /* Start counter to calculate timeout for respond data message from Pc Tool */
+                    MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, ENABLE);
+                    PcTool_Timer_Lock_State = LOCK;
+                }
+
                 break;
+
             /* If receive confirm request connection message to intialize PC Tool */
             case RX_CONFIRM_FROM_DISTANCE_NODE_ID:
+
                 /* Send confirm connection to PC tool */
                 App_Handle_ConfirmConnectionFromDistanceSensor();
                 break;
+
             /* If receive confirm request connection message to intialize PC Tool */
             case RX_CONFIRM_FROM_ROTATION_NODE_ID:
+
                 /* Send confirm connection to PC tool */
                 App_Handle_ConfirmConnectionFromRotationSensor();
                 break;
+
             /* If receive confirm ping message from distance node */
             case RX_CONFIRM_PING_DISTANCE_NODE_ID:
+
                 App_Handle_ReceivePingFromDistanceNode();
+
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
                 break;
+
             /* If receive confirm ping message from rotation node */
             case RX_CONFIRM_PING_ROTATION_NODE_ID:
                 App_Handle_ReceivePingFromRotationNode();
+
                 /* Disable timeout counter */
                 MID_TimeoutService_CounterCmd(R_NODE_RESPONDCONNECTION_GATE, DISABLE);
                 break;
+
             /* If received request connection message from PC Tool to itself */
             case PC_CONNECT_FORWARDER_ID:
                 /* Reset timeout counter */
@@ -154,24 +182,38 @@ int main(void)
 
                 App_Handle_RequestConnectFromPcToFw();
                 break;
+
             /* If received request connection message from PC Tool to distance sensor node */
             case PC_CONNECT_DISTANCE_SENSOR_ID:
                 App_Handle_RequestConnectFromPcToDistanceNode();
                 break;
+
             /* If received request connection message from PC Tool to rotation sensor node */
             case PC_CONNECT_ROTATION_SENSOR_ID:
+
                 App_Handle_RequestConnectFromPcToRotationNode();
                 break;
-            // case DISTANCE_DATA_ID:
-            //     App_Handle_ConfirmDistanceDataFromForwarder();
-            //     // /* Disable timeout counter */
-            //     // MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, DISABLE);
-            //     break;
-            // case ROTATION_DATA_ID:
-            //     App_Handle_ConfirmRotationDataFromForwarder();
-            //     // /* Disable timeout counter */
-            //     // MID_TimeoutService_CounterCmd(PC_RES_ROTATION_DATA_GATE, DISABLE);
-            //     break;
+
+            /* If received confirm data from PC Tools */
+            case DISTANCE_DATA_ID:
+                App_Handle_ConfirmDataFromPCTool();
+
+                /* Disable timeout counter */
+                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                PcTool_Timer_Lock_State = UNLOCK;
+
+                break;
+
+            /* If received confirm data from PC Tools */
+            case ROTATION_DATA_ID:
+                App_Handle_ConfirmDataFromPCTool();
+
+                /* Disable timeout counter */
+                MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
+                PcTool_Timer_Lock_State = UNLOCK;
+
+                break;
+
             default:
                 break;
             }
@@ -476,9 +518,6 @@ static void App_Handle_RequestConnectFromPcToRotationNode(void)
   */
 static void App_Handle_ReceivePingFromDistanceNode(void)
 {
-    /* Disable timeout for response counter */
-    MID_TimeoutService_CounterCmd(D_NODE_RESPONDCONNECTION_GATE, DISABLE);
-
     /**/
     APP_Compose_UARTFrame(DISTANCE_DATA_ID, Current_D_Value, Transmit_Data_Str);
 
@@ -516,25 +555,7 @@ static void App_Handle_ReceivePingFromRotationNode(void)
 }
 
 /**
- * @brief Handles confirmation of distance data operation from the forwarder.
- *
- * This function checks the operational state of the distance sensor node and,
- * if it is stopped, sends a wake-up CAN message to resume its operation.
- *
- * @param None
- * @return None
- */
-static void App_Handle_ConfirmDistanceDataFromForwarder(void)
-{
-    if(D_Node_State == STOP)
-    {
-        MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_WAKEUP_DATA);
-        D_Node_State = RUNNING;
-    }
-}
-
-/**
- * @brief Handles confirmation of rotation data operation from the forwarder.
+ * @brief Handles confirm message of rotation data from the Pc Tool.
  *
  * This function checks the operational state of the rotation sensor node and,
  * if it is stopped, sends a wake-up CAN message to resume its operation.
@@ -542,12 +563,15 @@ static void App_Handle_ConfirmDistanceDataFromForwarder(void)
  * @param None
  * @return None
  */
-static void App_Handle_ConfirmRotationDataFromForwarder(void)
+static void App_Handle_ConfirmDataFromPCTool(void)
 {
-    if(R_Node_State == STOP)
+    if(Node_State == STOP)
     {
+        MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_WAKEUP_DATA);
+
         MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_WAKEUP_DATA);
-        R_Node_State = RUNNING;
+
+        Node_State = RUNNING;
     }
 }
 
@@ -623,42 +647,18 @@ static void App_Handle_TimeoutEvent(void)
         MID_TimeoutService_WriteEvent(R_NODE_RESPOND_TIMEOUT_EVENT, EVENT_NONE);
     }
 
-    // if(MID_TimeoutService_GetEvent(PC_RES_DISTANCE_DATA_TIMEOUT_EVENT) == EVENT_SET \
-    //    || MID_TimeoutService_GetEvent(PC_RES_ROTATION_DATA_TIMEOUT_EVENT) == EVENT_SET)
-    // {
-    //     if(D_Node_State != STOP)
-    //     {
-    //         MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_STOPOPR_DATA);
-
-    //         MID_TimeoutService_CounterCmd(PC_RES_DISTANCE_DATA_GATE, DISABLE);
-    //         /* Reset state */
-    //         MID_TimeoutService_WriteEvent(PC_RES_DISTANCE_DATA_TIMEOUT_EVENT, EVENT_NONE);
-    //         /* Set status of Distance node as Stop opreation */
-    //         D_Node_State = STOP;
-    //     }
-
-    //     if(R_Node_State != STOP)
-    //     {
-    //         MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_STOPOPR_DATA);
-
-    //         MID_TimeoutService_CounterCmd(PC_RES_ROTATION_DATA_GATE, DISABLE);
-    //         /* Reset state */
-    //         MID_TimeoutService_WriteEvent(PC_RES_ROTATION_DATA_TIMEOUT_EVENT, EVENT_NONE);
-    //         /* Set status of Distance node as Stop opreation */
-    //         R_Node_State = STOP;
-    //     }
-    // }
-    if(MID_TimeoutService_GetEvent(PC_RESQUEST_CONNECT_TIMEOUT_EVENT) == EVENT_SET)
+    if(MID_TimeoutService_GetEvent(PC_RESPOND_DATA_TIMEOUT_EVENT) == EVENT_SET)
     {
-        if(D_Node_State != STOP)
+        if(Node_State != STOP)
         {
             MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_STOPOPR_DATA);
+            MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_STOPOPR_DATA);
 
-            MID_TimeoutService_ResetCounter(PC_RESQUEST_CONNECT_CNT);
+            MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);
             /* Reset state */
-            MID_TimeoutService_WriteEvent(PC_RESQUEST_CONNECT_TIMEOUT_EVENT, EVENT_NONE);
+            MID_TimeoutService_WriteEvent(PC_RESPOND_DATA_TIMEOUT_EVENT, EVENT_NONE);
             /* Set status of Distance node as Stop opreation */
-            D_Node_State = STOP;
+            Node_State = STOP;
         }
     }
 }
