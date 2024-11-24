@@ -30,11 +30,11 @@ static void FLEXCAN_Rx_Mb_Init(void);
  ******************************************************************************/
 static flexcan_handle_t handle;
 
-static flexcan_mb_t Message;
+static flexcan_mb_t Transmit_Message;
 
 static flexcan_mb_t Receive_Message;
 
-flexcan_mb_config_t mbCfg = 
+flexcan_mb_config_t mbCfg =
 {
     .idType = FLEXCAN_MB_ID_STD,
     .dataLength = 8U
@@ -90,25 +90,55 @@ static void FLEXCAN_ParamConfig(void)
 
 static void FLEXCAN_Tx_Mb_Init(void)
 {
-    /* Initialize Tx Message buffer to send sensor data to CAN Bus */
-    DRV_FLEXCAN_ConfigTxMb(0, TX_DISTANCE_DATA_MB, &mbCfg, TX_MSG_DISTANCE_DATA_ID);
+    /* Initialize Tx Message buffer to send confirm distance data to CAN Bus */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_CONFIRM_DISTANCE_DATA_MB, &mbCfg, TX_CONFIRM_DISTANCE_DATA_ID);
 
-    /* Initialize Tx Message buffer to send confirm connection from Forwarder to CAN Bus */
-    DRV_FLEXCAN_ConfigTxMb(0, TX_CONFIRM_CONNECTION_MB, &mbCfg, TX_MSG_CONFIRM_CONNECTION_ID);
+    /* Initialize Tx Message buffer to send confirm rotation data to CAN Bus */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_CONFIRM_ROTATION_DATA_MB, &mbCfg, TX_CONFIRM_ROTATION_DATA_ID);
+
+    /* Initialize Tx Message buffer to request connection state from Distance Node */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_RQ_CONNECT_DISTANCE_NODE_MB, &mbCfg, TX_RQ_CONNECT_DISTANCE_NODE_ID);
+
+    /* Initialize Tx Message buffer to request connection state from Rotation Node */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_RQ_CONNECT_ROTATION_NODE_MB, &mbCfg, TX_RQ_CONNECT_ROTATION_NODE_ID);
+
+    /* Initialize Tx Message buffer to send stop operation to Distance Node */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_STOPOPR_DISTANCE_NODE_MB, &mbCfg, TX_STOPOPR_DISTANCE_NODE_ID);
+
+    /* Initialize Tx Message buffer to send stop operation to Rotation Node */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_STOPOPR_ROTATION_NODE_MB, &mbCfg, TX_STOPOPR_ROTATION_NODE_ID);
+
+    /* Initialize Tx Message buffer to send ping message to distance node to CAN Bus */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_PING_DISTANCE_NODE_MB, &mbCfg, TX_PING_DISTANCE_NODE_ID);
+
+    /* Initialize Tx Message buffer to send ping message to rotation node to CAN Bus */
+    DRV_FLEXCAN_ConfigTxMb(FLEXCAN_INSTANCE, TX_PING_ROTATION_NODE_MB, &mbCfg, TX_PING_ROTATION_NODE_ID);
 }
 
 static void FLEXCAN_Rx_Mb_Init(void)
 {
-    DRV_FLEXCAN_SetRxMbGlobalMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, 0x1FFFFFFF);
+    DRV_FLEXCAN_SetRxMbGlobalMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, GMASK_FILTER_ALL_ID);
 
-    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_STOPOPR_MB, 0xFFFFFFFF);
-    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_CONNECTION_MB, 0xFFFFFFFF);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_DISTANCE_DATA_MB, IMASK_FILTER_ALL_ID);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_ROTATION_DATA_MB, IMASK_FILTER_ALL_ID);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_CONFIRM_FROM_DISTANCE_NODE_MB, IMASK_FILTER_ALL_ID);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_CONFIRM_FROM_ROTATION_NODE_MB, IMASK_FILTER_ALL_ID);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_CONFIRM_PING_DISTANCE_NODE_MB, IMASK_FILTER_ALL_ID);
+    DRV_FLEXCAN_SetRxMbIndividualMask(FLEXCAN_INSTANCE, FLEXCAN_MB_ID_STD, RX_CONFIRM_PING_ROTATION_NODE_MB, IMASK_FILTER_ALL_ID);
 
-    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_STOPOPR_MB, &mbCfg, RX_MSG_STOPOPR_ID);
-    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_CONNECTION_MB, &mbCfg, RX_MSG_CONNECTION_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_DISTANCE_DATA_MB, &mbCfg, RX_DISTANCE_DATA_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_ROTATION_DATA_MB, &mbCfg, RX_ROTATION_DATA_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_CONFIRM_FROM_DISTANCE_NODE_MB, &mbCfg, RX_CONFIRM_FROM_DISTANCE_NODE_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_CONFIRM_FROM_ROTATION_NODE_MB, &mbCfg, RX_CONFIRM_FROM_ROTATION_NODE_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_CONFIRM_PING_DISTANCE_NODE_MB, &mbCfg, RX_CONFIRM_PING_DISTANCE_NODE_ID);
+    DRV_FLEXCAN_ConfigRxMb(FLEXCAN_INSTANCE, RX_CONFIRM_PING_ROTATION_NODE_MB, &mbCfg, RX_CONFIRM_PING_ROTATION_NODE_ID);
 
-    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_STOPOPR_MB);
-    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_CONNECTION_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_DISTANCE_DATA_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_ROTATION_DATA_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_CONFIRM_FROM_DISTANCE_NODE_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_CONFIRM_FROM_ROTATION_NODE_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_CONFIRM_PING_DISTANCE_NODE_MB);
+    DRV_FLEXCAN_EnableMbInt(FLEXCAN_INSTANCE, RX_CONFIRM_PING_ROTATION_NODE_MB);
 }
 
 void MID_CAN_Init(void)
@@ -145,9 +175,9 @@ void MID_CAN_ReceiveMessage(uint8_t mbIdx, Data_Typedef *data)
 
 void MID_CAN_SendCANMessage(uint8_t Tx_Mb, int16_t Data)
 {
-    Message.data[0] = Data;
+    Transmit_Message.data[0] = Data;
 
-    DRV_FLEXCAN_Transmit(FLEXCAN_INSTANCE, Tx_Mb, &Message);
+    DRV_FLEXCAN_Transmit(FLEXCAN_INSTANCE, Tx_Mb, &Transmit_Message);
 }
 
 void MID_ClearMessageCommingEvent(uint8_t Mailbox)

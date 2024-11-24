@@ -57,7 +57,7 @@ void MID_Clock_Init(void)
         }
         ,
         {
-            .clockName   = ADC0_CLK,
+            .clockName   = LPUART1_CLK,
             .enableClock = true,
             .clkSrc      = (uint8_t)SCG_SYSTEM_CLOCK_SRC_SPLL
         }
@@ -107,7 +107,7 @@ void MID_Clock_Init(void)
                 .prediv       = SCG_SPLL_PREDIV1,            /* Divided by 1                             */
                 .mult         = SCG_SPLL_VCO_MULT_40,        /* Multiply Factor is 40                    */
                 .div1         = SCG_ASYNC_CLOCK_DIV_BY_2,    /* System PLL Clock Divider 1: divided by 2 */
-                .div2         = SCG_ASYNC_CLOCK_DIV_BY_2,    /* System PLL Clock Divider 2: divided by 2 */
+                .div2         = SCG_ASYNC_CLOCK_DIV_BY_4,    /* System PLL Clock Divider 2: divided by 2 */
             },
             .clkModeConfig =
             {

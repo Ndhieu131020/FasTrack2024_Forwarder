@@ -1,32 +1,27 @@
-/*
- *  Filename: MID_Notification_Manager.c
- *
- *  Created on: 11-05-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
-#include "DRV_S32K144_NVIC.h"
-#include "MID_Notification_Manager.h"
+#ifndef MID_RECEIVEQUEUE_INTERFACE_H_
+#define MID_RECEIVEQUEUE_INTERFACE_H_
 
 /*******************************************************************************
- * Definition
+ * Includes
  ******************************************************************************/
+#include "Queue_Common.h"
 
 /*******************************************************************************
- * Prototypes
+ * Defices
  ******************************************************************************/
+
 
 /*******************************************************************************
- * Variables
+ * APIs
  ******************************************************************************/
 
+void MID_Receive_Queue_Init( void );
+
+QueueCheckOperation_t MID_Receive_EnQueue( const ReceiveFrame_t *const pInData );
+
+QueueCheckOperation_t MID_Receive_DeQueue( ReceiveFrame_t *const pOutData );
+
+#endif /* MID_RECEIVEQUEUE_INTERFACE_H_ */
 /*******************************************************************************
- * Code
+ * EOF
  ******************************************************************************/
-
-void MID_EnableNotification(void)
-{
-    NVIC_EnableIRQ(LPUART1_RxTx_IRQn);
-    NVIC_EnableIRQ(LPIT0_Ch0_IRQn);
-    NVIC_EnableIRQ(CAN0_ORed_0_15_MB_IRQn);
-}
