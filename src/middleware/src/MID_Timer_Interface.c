@@ -1,13 +1,3 @@
-/*
- *  Filename: MID_Timer_Interface.c
- *
- *  Description: This file contains the implementation of the timer interface
- *               for managing timeout events using LPIT on the S32K144.
- *
- *  Created on: 11-05-2024
- *      Author: Ndhieu131020@gmail.com
- */
-
 #include "DRV_S32K144_LPIT.h"
 #include "DRV_S32K144_MCU.h"
 #include "MID_Timer_Interface.h"

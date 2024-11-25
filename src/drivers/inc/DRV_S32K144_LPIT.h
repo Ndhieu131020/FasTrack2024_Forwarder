@@ -1,10 +1,3 @@
-/*
- * DRV_S32K144_LPIT.h
- *
- *  Created on: May 6, 2024
- *      Author: ndhieu131020
- */
-
 #ifndef DRV_S32K144_LPIT_H_
 #define DRV_S32K144_LPIT_H_
 

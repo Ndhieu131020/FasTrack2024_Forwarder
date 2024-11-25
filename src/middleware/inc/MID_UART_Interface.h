@@ -30,14 +30,45 @@
 /*******************************************************************************
  * API
  ******************************************************************************/
+/**
+  * @brief      Initialize the LPUART1 module
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_Init(void);
 
+/**
+  * @brief      Register callback functions for UART transmission and reception
+  * @param[in]  TxCallback: Pointer to the transmission callback function
+  * @param[in]  RxCallback: Pointer to the reception callback function
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_RegisterNotificationCallback(void (*TxCallback)(void), void (*RxCallback)(void));
 
+/**
+  * @brief      Receive a single byte of data from UART
+  * @param[in]  None
+  * @param[out] None
+  * @retval     Received byte of data
+  */
 uint8_t MID_UART_ReceiveData(void);
 
+/**
+  * @brief      Send a single byte of data through UART
+  * @param[in]  data Byte of data to send
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_SendData(uint8_t data);
 
+/**
+  * @brief      Enable or disable the UART transmit interrupt
+  * @param[in]  enable: Boolean flag to enable (true) or disable (false) the interrupt
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_SetTxInterrupt(bool enable);
 
 #endif /* MID_UART_INTERFACE_H_ */

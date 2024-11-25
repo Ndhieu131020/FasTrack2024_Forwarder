@@ -1,9 +1,3 @@
-/*
- *  Filename: DRV_S32K144_FLEXCAN.c
- *
- *  Created on: 11-08-2024
- *      Author: Ndhieu131020@gmail.com
-*/
 #include "DRV_S32K144_FLEXCAN.h"
 
 /*******************************************************************************

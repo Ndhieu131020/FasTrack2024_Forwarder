@@ -1,10 +1,3 @@
-/*
- *  Filename: application.c
- *
- *  Created on: 11-04-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #include <stdint.h>
 #include <stdbool.h>
 #include "MID_Clock_Interface.h"
@@ -28,6 +21,7 @@
 #define D_LOCK            0u
 #define R_LOCK            1u
 #define UNLOCK            2u
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
