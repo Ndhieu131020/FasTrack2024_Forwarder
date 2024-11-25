@@ -163,7 +163,11 @@ static uint32_t g_PeripheralFeaturesList[] = PERIPHERAL_FEATURES;
 /*******************************************************************************
  * Codes
  ******************************************************************************/
-
+/**
+  * @brief      Initialize the system clock based on provided configuration.
+  * @param[in]  clkConfig: Structure used to hold Clock Configurable parameters.
+  * @retval     status of success or fail or error
+  */
 clock_status_t DRV_Clock_Init(const clock_manager_config_t * clkConfig)
 {
     clock_status_t retVal = CLOCK_STATUS_SUCCESS;
@@ -189,7 +193,11 @@ clock_status_t DRV_Clock_Init(const clock_manager_config_t * clkConfig)
     return retVal;
 }
 
-/* Configure the SCG block */
+/**
+  * @brief         Configure the SCG block
+  * @param[in]     scgConfig: Pointer to a structure containing SCG configuration parameters.
+  * @retval        status of success or fail or error
+  */
 static clock_status_t DRV_SCG_Configuration(const scg_config_t *scgConfig)
 {
     clock_status_t retVal = CLOCK_STATUS_SUCCESS;
@@ -226,7 +234,11 @@ static clock_status_t DRV_SCG_Configuration(const scg_config_t *scgConfig)
     return retVal;
 }
 
-/* Configure SIRC module */
+/**
+  * @brief         Configure SIRC module
+  * @param[in]     sircConfig: Pointer to a structure containing SIRC module configuration parameters.
+  * @retval        None
+  */
 static void DRV_SCG_SIRC_Config(const scg_sirc_config_t *sircConfig)
 {
     if (sircConfig != NULL)
@@ -249,7 +261,12 @@ static void DRV_SCG_SIRC_Config(const scg_sirc_config_t *sircConfig)
     }
 }
 
-/* Set SCG asynchronous dividers for SIRC */
+/**
+  * @brief         Set SCG asynchronous dividers for SIRC
+  * @param[in]     div1: Divider value for the asynchronous clock output 1 (SIRCDIV1).
+  * @param[in]     div2: Divider value for the asynchronous clock output 2 (SIRCDIV2).
+  * @retval        None
+  */
 static void DRV_SCG_SIRC_AsyncConfig(const scg_async_clock_div_t div1,
                                      const scg_async_clock_div_t div2)
 {
@@ -257,14 +274,23 @@ static void DRV_SCG_SIRC_AsyncConfig(const scg_async_clock_div_t div1,
                                        |    SCG_SIRCDIV_SIRCDIV1(div1) | SCG_SIRCDIV_SIRCDIV2(div2);
 }
 
-/* Set SIRC frequency range */
+/**
+  * @brief         Set SIRC frequency range
+  * @param[in]     range: Frequency range setting for the SIRC module.
+  * @retval        None
+  */
 static void DRV_SCG_SIRC_SetConfiguration(const scg_sirc_range_t range)
 {
     IP_SCG->SIRCCFG = (IP_SCG->SIRCCFG & (~SCG_SIRCCFG_RANGE_MASK))
                                        |   SCG_SIRCCFG_RANGE(range);
 }
 
-/* Set SIRC control register */
+/**
+  * @brief         Set SIRC control register.
+  * @param[in]     enableSIRC: Boolean flag to enable (`true`) or disable (`false`) the SIRC module.
+  * @param[in]     lockMode: Boolean flag to lock (`true`) or unlock (`false`) the SIRC configuration.
+  * @retval        None
+  */
 static void DRV_SCG_SIRC_Control(const bool enableSIRC, const bool lockMode)
 {
     IP_SCG->SIRCCSR = (IP_SCG->SIRCCSR & (~(SCG_SIRCCSR_LK_MASK      | SCG_SIRCCSR_SIRCEN_MASK )))
@@ -281,7 +307,11 @@ static void DRV_SCG_SIRC_Control(const bool enableSIRC, const bool lockMode)
     }
 }
 
-/* Configure FIRC module */
+/**
+  * @brief         Configure FIRC module
+  * @param[in]     fircConfig: Pointer to a structure containing the FIRC module configuration parameters.
+  * @retval        None
+  */
 static void DRV_SCG_FIRC_Config(const scg_firc_config_t *fircConfig)
 {
     if (fircConfig != NULL)
@@ -298,7 +328,10 @@ static void DRV_SCG_FIRC_Config(const scg_firc_config_t *fircConfig)
     }
 }
 
-/* Set SCG asynchronous dividers for FIRC */
+/**
+  * @brief         Set SCG asynchronous dividers for FIRC
+  * @retval        None
+  */
 static void DRV_SCG_FIRC_AsyncConfig(const scg_async_clock_div_t div1,
                                      const scg_async_clock_div_t div2)
 {
@@ -306,14 +339,21 @@ static void DRV_SCG_FIRC_AsyncConfig(const scg_async_clock_div_t div1,
                                        |    SCG_FIRCDIV_FIRCDIV1(div1) | SCG_FIRCDIV_FIRCDIV2(div2);
 }
 
-/* Set FIRC control register */
+/**
+  * @brief         Set FIRC control register
+  * @retval        None
+  */
 static void DRV_SCG_FIRC_Control(const bool regulator, const bool lockMode)
 {
     IP_SCG->FIRCCSR = (IP_SCG->FIRCCSR & (~(SCG_FIRCCSR_FIRCREGOFF_MASK        | SCG_FIRCCSR_LK_MASK)))
                                        |    SCG_FIRCCSR_FIRCREGOFF(!regulator) | SCG_FIRCCSR_LK(lockMode);
 }
 
-/* Configure SOSC module */
+/**
+  * @brief         Configure SOSC module
+  * @param[in]     soscConfig: Pointer to a structure containing the SOSC module configuration parameters.
+  * @retval        None
+  */
 static void DRV_SCG_SOSC_Config(const scg_sosc_config_t *soscConfig)
 {
     if (soscConfig != NULL)
@@ -340,7 +380,10 @@ static void DRV_SCG_SOSC_Config(const scg_sosc_config_t *soscConfig)
     }
 }
 
-/* Set SCG asynchronous dividers for SOSC */
+/**
+  * @brief      Set SCG asynchronous dividers for SOSC
+  * @retval     None
+  */
 static void DRV_SCG_SOSC_AsyncConfig(const scg_async_clock_div_t div1,
                                      const scg_async_clock_div_t div2)
 {
@@ -348,7 +391,10 @@ static void DRV_SCG_SOSC_AsyncConfig(const scg_async_clock_div_t div1,
                                        |    SCG_SOSCDIV_SOSCDIV1(div1) | SCG_SOSCDIV_SOSCDIV2(div2);
 }
 
-/* Set SOSC configuration register */
+/**
+  * @brief      Set SOSC configuration register
+  * @retval     None
+  */
 static void DRV_SCG_SOSC_SetConfiguration(const scg_sosc_range_t range,
                                           const scg_sosc_gain_t gain,
                                           const scg_sosc_ext_ref_t extRef)
@@ -357,7 +403,10 @@ static void DRV_SCG_SOSC_SetConfiguration(const scg_sosc_range_t range,
                                        |    SCG_SOSCCFG_RANGE(range) | SCG_SOSCCFG_HGO(gain) | SCG_SOSCCFG_EREFS(extRef);
 }
 
-/* Set SOSC control register */
+/**
+  * @brief      Set SOSC control register
+  * @retval     None
+  */
 static void DRV_SCG_SOSC_Control(const bool enableSOSC,
                                  const scg_sosc_monitor_mode_t monitorMode,
                                  const bool lockMode)
@@ -403,7 +452,11 @@ static void DRV_SCG_SOSC_Control(const bool enableSOSC,
     }
 }
 
-/* Configure SPLL module */
+/**
+  * @brief         Configures the System Phase-Locked Loop (SPLL) module.
+  * @param[in]     spllConfig: Pointer to a structure containing the SPLL module configuration parameters.
+  * @retval        None
+  */
 static void DRV_SCG_SPLL_Config(const scg_spll_config_t *spllConfig)
 {
     if (spllConfig != NULL)
@@ -428,7 +481,10 @@ static void DRV_SCG_SPLL_Config(const scg_spll_config_t *spllConfig)
     }
 }
 
-/* Set SCG asynchronous dividers for SPLL */
+/**
+  * @brief      Set SCG asynchronous dividers for SPLL
+  * @retval     None
+  */
 static void DRV_SCG_SPLL_AsyncConfig(const scg_async_clock_div_t div1,
                                      const scg_async_clock_div_t div2)
 {
@@ -437,7 +493,10 @@ static void DRV_SCG_SPLL_AsyncConfig(const scg_async_clock_div_t div1,
                                        |    SCG_SPLLDIV_SPLLDIV1(div1) | SCG_SPLLDIV_SPLLDIV2(div2);
 }
 
-/* Set SPLL configuration register */
+/**
+  * @brief      Set SPLL configuration register
+  * @retval     None
+  */
 static void DRV_SCG_SPLL_SetConfiguration(const scg_spll_prediv_t   divider,
                                           const scg_spll_vco_mult_t multiplier)
 {
@@ -445,7 +504,10 @@ static void DRV_SCG_SPLL_SetConfiguration(const scg_spll_prediv_t   divider,
                                        |    SCG_SPLLCFG_PREDIV(divider) | SCG_SPLLCFG_MULT(multiplier);
 }
 
-/* Set SPLL control register */
+/**
+  * @brief      Set SPLL control register
+  * @retval     None
+  */
 static void DRV_SCG_SPLL_Control(const bool enableSPLL,
                                  const scg_spll_monitor_mode_t monitorMode,
                                  const bool lockMode)
@@ -491,6 +553,11 @@ static void DRV_SCG_SPLL_Control(const bool enableSPLL,
     }
 }
 
+/**
+  * @brief         Configures the system clock source and dividers.
+  * @param[in]     sysClkConfig: Pointer to a structure containing system clock configuration parameters.
+  * @retval        status of success or fail ot error
+  */
 static clock_status_t DRV_SCG_SystemClockConfig(const scg_sys_clock_config_t * sysClkConfig)
 {
           clock_status_t retVal                                             = CLOCK_STATUS_SUCCESS;
@@ -516,13 +583,25 @@ static clock_status_t DRV_SCG_SystemClockConfig(const scg_sys_clock_config_t * s
     return retVal;
 }
 
+/**
+  * @brief         Set Run Clock Control.
+  * @param[in]     source       The clock source to use.
+  * @param[in]     coreDivider  The divider for the core clock.
+  * @param[in]     busDivider   The divider for the bus clock.
+  * @param[in]     slowDivider  The divider for the slow clock.
+  * @retval        None
+  */
 static void DRV_SCG_SetRunClockControl(uint32_t source, uint32_t coreDivider, uint32_t busDivider, uint32_t slowDivider)
 {
     IP_SCG->RCCR = (IP_SCG->RCCR & (~(SCG_RCCR_SCS_MASK | SCG_RCCR_DIVCORE_MASK         | SCG_RCCR_DIVBUS_MASK        | SCG_RCCR_DIVSLOW_MASK)))
                                  | SCG_RCCR_SCS(source) | SCG_RCCR_DIVCORE(coreDivider) | SCG_RCCR_DIVBUS(busDivider) | SCG_RCCR_DIVSLOW(slowDivider);
 }
 
-/* Configure the PCC block */
+/**
+  * @brief         Configure the PCC block.
+  * @param[in]     peripheralClockConfig: Pointer to a structure containing peripheral clock configurations.
+  * @retval        None
+  */
 static void DRV_PCC_Configuration(const pcc_config_t *peripheralClockConfig)
 {
     uint32_t index     = 0U;
@@ -549,7 +628,13 @@ static void DRV_PCC_Configuration(const pcc_config_t *peripheralClockConfig)
     }
 }
 
-/* Set the peripheral clock source */
+/**
+  * @brief         Set the peripheral clock source
+  * @param[in]     clockName:       The name of the clock to configure.
+  * @param[in]     clkSrc:          The clock source to set.
+  * @param[in]     isClockEnabled:  Boolean indicating whether the clock is enabled.
+  * @retval        None
+  */
 static void DRV_PCC_SetPeripheralClockControl(const clock_names_t clockName,
                                               const uint8_t       clkSrc,
                                               const bool          isClockEnabled)
@@ -562,13 +647,12 @@ static void DRV_PCC_SetPeripheralClockControl(const clock_names_t clockName,
                                                 |   (PCC_PCCn_PCS(clkSrc) | PCC_PCCn_CGC(isClockEnabled));
 }
 
-
-
-
-
-
-
-
+/**
+  * @brief         Gets the frequency of a specified clock.
+  * @param[in]     clockName:  The name of the clock to query.
+  * @param[out]    frequency:  Pointer to store the retrieved frequency.
+  * @retval        status of success or fail or error
+  */
 clock_status_t DRV_Clock_GetFrequency(clock_names_t clockName, uint32_t * frequency)
 {
     clock_status_t retVal = CLOCK_STATUS_SUCCESS;
@@ -592,7 +676,12 @@ clock_status_t DRV_Clock_GetFrequency(clock_names_t clockName, uint32_t * freque
     return retVal;
 }
 
-/* Get the frequency of a SCG clock modules */
+/**
+  * @brief         Get the frequency of a SCG clock modules
+  * @param[in]     clockName:  The name of the SCG clock.
+  * @param[out]    frequency:  Pointer to store the retrieved frequency.
+  * @retval        status of success or fail or error
+  */
 static clock_status_t DRV_SCG_GetClockFrequency(clock_names_t clockName, uint32_t * frequency)
 {
     clock_status_t retVal = CLOCK_STATUS_SUCCESS;
@@ -665,6 +754,11 @@ static clock_status_t DRV_SCG_GetClockFrequency(clock_names_t clockName, uint32_
     return retVal;
 }
 
+/**
+  * @brief         Retrieves the frequency of a specific clock source.
+  * @param[in]     source:  The clock source to query.
+  * @retval        The frequency of the specified clock source in Hz.
+  */
 static uint32_t DRV_Clock_GetSourceFrequency(scg_system_clock_src_t source)
 {
     uint32_t sourceFreq = 0U;
@@ -691,6 +785,11 @@ static uint32_t DRV_Clock_GetSourceFrequency(scg_system_clock_src_t source)
     return sourceFreq;
 }
 
+/**
+  * @brief         Gets the system clock frequency for a specified clock type.
+  * @param[in]     clkType:  The type of system clock to query.
+  * @retval        The frequency of the specified clock type in Hz.
+  */
 static uint32_t DRV_Clock_GetSysClockFrequency(scg_system_clock_type clkType)
 {
     uint32_t Freq = 0U;
@@ -739,6 +838,10 @@ static uint32_t DRV_Clock_GetSysClockFrequency(scg_system_clock_type clkType)
     return Freq;
 }
 
+/**
+  * @brief         Gets the frequency of the System OSC (SOSC).
+  * @retval        The frequency of the SOSC in Hz, or 0 if the SOSC is invalid.
+  */
 static uint32_t DRV_Clock_GetSOSCFrequency(void)
 {
     uint32_t Freq = 0U;
@@ -755,6 +858,10 @@ static uint32_t DRV_Clock_GetSOSCFrequency(void)
     return Freq;
 }
 
+/**
+  * @brief         Gets the frequency of the Slow IRC (SIRC).
+  * @retval        The frequency of the SIRC in Hz, or 0 if the SIRC is invalid.
+  */
 static uint32_t DRV_Clock_GetSIRCFrequency(void)
 {
     uint32_t Freq = 0U;
@@ -778,6 +885,10 @@ static uint32_t DRV_Clock_GetSIRCFrequency(void)
     return Freq;
 }
 
+/**
+  * @brief         Gets the frequency of the Fast IRC (FIRC).
+  * @retval        The frequency of the FIRC in Hz, or 0 if the FIRC is invalid.
+  */
 static uint32_t DRV_Clock_GetFIRCFrequency(void)
 {
     uint32_t Freq = 0U;
@@ -794,6 +905,10 @@ static uint32_t DRV_Clock_GetFIRCFrequency(void)
     return Freq;
 }
 
+/**
+  * @brief         Gets the frequency of the System PLL (SPLL).
+  * @retval        The frequency of the SPLL in Hz, or 0 if the SPLL is invalid.
+  */
 static uint32_t DRV_Clock_GetSPLLFrequency(void)
 {
     uint32_t Freq = 0U;
@@ -822,6 +937,12 @@ static uint32_t DRV_Clock_GetSPLLFrequency(void)
     return Freq;
 }
 
+/**
+  * @brief         Gets the asynchronous clock frequency of a specific clock source.
+  * @param[in]     clockSrc:  The source clock.
+  * @param[in]     type:      The type of asynchronous clock divider.
+  * @retval        The frequency of the asynchronous clock in Hz, or 0 if the clock source is invalid.
+  */
 static uint32_t DRV_Clock_GetSysAsyncFrequency(clock_names_t clockSrc, scg_async_clock_type type)
 {
     uint32_t Freq = 0U;
@@ -922,6 +1043,13 @@ static uint32_t DRV_Clock_GetSysAsyncFrequency(clock_names_t clockSrc, scg_async
     return Freq;
 }
 
+
+/**
+  * @brief      Retrieves the clock frequency of a specified peripheral.
+  * @param[in]  clockName:   The clock name from the clock_names_t enumeration.
+  * @param[out] frequency:   Pointer to a variable to store the retrieved frequency.
+  * @retval     status of success or fail or error.
+  */
 static clock_status_t DRV_PCC_GetClockFrequency(clock_names_t clockName, uint32_t * frequency)
 {
     clock_status_t retVal          = CLOCK_STATUS_SUCCESS;
@@ -1016,6 +1144,11 @@ static clock_status_t DRV_PCC_GetClockFrequency(clock_names_t clockName, uint32_
     return retVal;
 }
 
+/**
+  * @brief      Validates and checks the clock status for a given clockName.
+  * @param[in]  clockName:   The clock name from the clock_names_t enumeration.
+  * @retval     status of success or fail or error.
+  */
 static clock_status_t DRV_PCC_CheckClock(clock_names_t clockName)
 {
     clock_status_t retVal = CLOCK_STATUS_SUCCESS;
@@ -1042,6 +1175,12 @@ static clock_status_t DRV_PCC_CheckClock(clock_names_t clockName)
     return retVal;
 }
 
+/**
+  * @brief      Retrieves the clock frequency of a specific peripheral based on its async clock type.
+  * @param[in]  clockName:   The clock name from the clock_names_t enumeration.
+  * @param[in]  divider:     The async clock divider type (SCG_ASYNC_CLOCK_DIV1 or SCG_ASYNC_CLOCK_DIV2).
+  * @retval     The frequency of the peripheral clock. Returns 0 if the clock is gated off.
+  */
 static uint32_t DRV_PCC_GetPeripheralClock(clock_names_t        clockName,
                                            scg_async_clock_type divider)
 {

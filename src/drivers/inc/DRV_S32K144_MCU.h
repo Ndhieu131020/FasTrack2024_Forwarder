@@ -249,9 +249,19 @@ typedef struct
 /*******************************************************************************
  * APIs
  ******************************************************************************/
-
+/**
+  * @brief      Initialize the system clock based on provided configuration.
+  * @param[in]  clkConfig: Structure used to hold Clock Configurable parameters.
+  * @retval     status of success or fail or error
+  */
 clock_status_t DRV_Clock_Init(const clock_manager_config_t * clkConfig);
 
+/**
+  * @brief         Gets the frequency of a specified clock.
+  * @param[in]     clockName:  The name of the clock to query.
+  * @param[out]    frequency:  Pointer to store the retrieved frequency.
+  * @retval        status of success or fail or error
+  */
 clock_status_t DRV_Clock_GetFrequency(clock_names_t clockName, uint32_t * frequency);
 
 #endif /* HAL_INCLUDE_CLOCK_H_ */
@@ -259,4 +269,3 @@ clock_status_t DRV_Clock_GetFrequency(clock_names_t clockName, uint32_t * freque
 /*******************************************************************************
  * End Of File
  ******************************************************************************/
-

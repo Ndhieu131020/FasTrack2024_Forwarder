@@ -1,10 +1,3 @@
-/*
- *  Filename: MID_Notification_Manager.h
- *
- *  Created on: 11-05-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #ifndef MID_NOTIFICATION_MANAGER_H_
 #define MID_NOTIFICATION_MANAGER_H_
 
