@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "MID_Clock_Interface.h"
+#include "MID_GPIO_Interface.h"
 #include "MID_Notification_Manager.h"
 #include "MID_Timer_Interface.h"
 #include "MID_CAN_Interface.h"
@@ -86,6 +87,7 @@ int main(void)
     MID_Clock_Init();
     MID_CAN_Init();
     MID_Timer_Init();
+    MID_Led_Init();
     MID_UART_Init();
     MID_Transmit_Queue_Init();
     MID_Receive_Queue_Init();
@@ -587,6 +589,9 @@ static void App_Handle_ConfirmDataFromPCTool(void)
         MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_WAKEUP_DATA);
 
         Node_State = RUNNING;
+
+        MID_TurnOffLed(LED_RED);
+        MID_TurnOffLed(LED_GREEN);
     }
 }
 
@@ -683,6 +688,8 @@ static void App_Handle_TimeoutEvent(void)
             /* Reset state */
             MID_TimeoutService_WriteEvent(PC_RESPOND_DATA_TIMEOUT_EVENT, EVENT_NONE);
             /* Set status of Distance node as Stop opreation */
+            MID_TurnOnLed(LED_RED);
+            MID_TurnOnLed(LED_GREEN);
             Node_State = STOP;
         }
     }
