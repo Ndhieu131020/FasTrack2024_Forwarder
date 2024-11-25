@@ -1,10 +1,3 @@
-/*
- *  Filename: MID_Clock_Interface.c
- *
- *  Created on: 11-04-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #include "DRV_S32K144_MCU.h"
 #include "MID_Clock_Interface.h"
 
@@ -26,8 +19,10 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-/* Initializes the clock module */
+/**
+  * @brief  Initializes the clock module
+  * @retval None
+  */
 void MID_Clock_Init(void)
 {
     peripheral_clk_config_t peripheralClockConfig0[NUM_OF_PERIPHERAL_CLOCKS_0] =

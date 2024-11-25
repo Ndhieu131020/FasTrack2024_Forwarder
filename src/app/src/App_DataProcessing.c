@@ -1,9 +1,3 @@
-/*
- *  Filename: App_DataProcessing.c
- *
- *  Created on: 11-18-2024
- *      Author: Ndhieu131020@gmail.com
-*/
 #include "App_DataProcessing.h"
 
 /*******************************************************************************

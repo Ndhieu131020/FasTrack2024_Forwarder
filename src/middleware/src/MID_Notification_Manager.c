@@ -1,10 +1,3 @@
-/*
- *  Filename: MID_Notification_Manager.c
- *
- *  Created on: 11-05-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #include "DRV_S32K144_NVIC.h"
 #include "MID_Notification_Manager.h"
 
@@ -24,6 +17,12 @@
  * Code
  ******************************************************************************/
 
+/**
+  * @brief      Enable specific interrupts to the processor
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_EnableNotification(void)
 {
     NVIC_EnableIRQ(LPUART1_RxTx_IRQn);

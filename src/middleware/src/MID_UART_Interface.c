@@ -19,7 +19,12 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
+/**
+  * @brief      Initialize the LPUART1 module
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_Init(void)
 {
     virtual_pin_id_t LPUART_Tx_Pin = PTC7;
@@ -50,21 +55,46 @@ void MID_UART_Init(void)
     DRV_LPUART_Init(USR_LPUART_INS, &lpuartConfig);
 }
 
+/**
+  * @brief      Register callback functions for UART transmission and reception
+  * @param[in]  TxCallback: Pointer to the transmission callback function
+  * @param[in]  RxCallback: Pointer to the reception callback function
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_RegisterNotificationCallback(void (*TxCallback)(void), void (*RxCallback)(void))
 {
     DRV_LPUART_RegisterIntCallback(USR_LPUART_INS, TxCallback, RxCallback);
 }
 
+/**
+  * @brief      Receive a single byte of data from UART
+  * @param[in]  None
+  * @param[out] None
+  * @retval     Received byte of data
+  */
 uint8_t MID_UART_ReceiveData(void)
 {
     return DRV_LPUART_ReceiveChar(USR_LPUART_INS);
 }
 
+/**
+  * @brief      Send a single byte of data through UART
+  * @param[in]  data Byte of data to send
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_SendData(uint8_t data)
 {
     DRV_LPUART_SendChar(USR_LPUART_INS, data);
 }
 
+/**
+  * @brief      Enable or disable the UART transmit interrupt
+  * @param[in]  enable: Boolean flag to enable (true) or disable (false) the interrupt
+  * @param[out] None
+  * @retval     None
+  */
 void MID_UART_SetTxInterrupt(bool enable)
 {
     DRV_LPUART_SetTransmitITStatus(USR_LPUART_INS, enable);

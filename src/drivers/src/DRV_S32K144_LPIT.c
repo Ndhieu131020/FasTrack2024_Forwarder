@@ -1,9 +1,3 @@
-/*
- * DRV_S32K144_LPIT.c
- *
- *  Created on: May 6, 2024
- *      Author: ndhieu131020
- */
 #include "DRV_S32K144_LPIT.h"
 
 /*******************************************************************************
@@ -218,6 +212,6 @@ void LPIT0_Ch3_IRQHandler(void)
 {
     /* Clear interrupt flag */
     IP_LPIT0->MSR |= (LPIT_MSR_TIF0_MASK << LPIT_CH3);
-    
+
     LPIT_IRQ_fp[(uint8_t)(LPIT_CH3)]();
 }

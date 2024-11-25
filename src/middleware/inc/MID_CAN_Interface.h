@@ -1,10 +1,3 @@
-/*
- *  Filename: MID_CAN_Interface.h
- *
- *  Created on: 11-08-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #ifndef MID_CAN_INTERFACE_H_
 #define MID_CAN_INTERFACE_H_
 
@@ -107,26 +100,74 @@ typedef struct MID_CAN_Interface
 {
     uint32_t ID;        /* ID of message, it can be a value of @defgroup *_ID */
     uint32_t Data;      /* Data of message, it can be a value of @defgroup *_DATA */
-}Data_Typedef;
+} Data_Typedef;
 
 /*******************************************************************************
  * API
  ******************************************************************************/
-
+/**
+  * @brief      Initialize FLEXCAN0 module and all MBs used
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_CAN_Init(void);
 
+/**
+  * @brief      Initialize all Message Buffers for CAN communication
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_CAN_MailboxInit(void);
 
+/**
+  * @brief      Register a callback function for receiving CAN messages
+  * @param[in]  cb_ptr: Pointer to the callback function
+  * @param[out] None
+  * @retval     None
+  */
 void MID_CAN_RegisterRxNotificationCallback(void (*cb_ptr)(void));
 
+/**
+  * @brief      Register a callback function for the CAN bus-off event
+  * @param[in]  cb_ptr: Pointer to the callback function
+  * @param[out] None
+  * @retval     None
+  */
 void MID_CAN_RegisterBusOffNotificationCallback(void (*cb_ptr)(void));
 
+/**
+  * @brief      Receive a CAN message from the specified mailbox
+  * @param[in]  mbIdx: Index of the mailbox to receive from
+  * @param[out] data: Pointer to the data structure to store received message
+  * @retval     None
+  */
 void MID_CAN_ReceiveMessage(uint8_t mbIdx, Data_Typedef *data);
 
+/**
+  * @brief      Send a CAN message from the specified mailbox
+  * @param[in]  Tx_Mb: Index of the transmit mailbox
+  * @param[in]  Data:  Data to be sent
+  * @param[out] None
+  * @retval     None
+  */
 void MID_CAN_SendCANMessage(uint8_t Tx_Mb, int16_t Data);
 
+/**
+  * @brief      Clear message event for a specific mailbox
+  * @param[in]  Mailbox: Index of the mailbox
+  * @param[out] None
+  * @retval     None
+  */
 void MID_ClearMessageCommingEvent(uint8_t Mailbox);
 
+/**
+  * @brief      Check if a message event occurred in the specified mailbox
+  * @param[in]  Mailbox: Index of the mailbox
+  * @param[out] None
+  * @retval     Status of the message event (1 if occurred, 0 otherwise)
+  */
 uint8_t MID_CheckCommingMessageEvent(uint8_t Mailbox);
 
 #endif /* MID_CAN_INTERFACE_H_ */

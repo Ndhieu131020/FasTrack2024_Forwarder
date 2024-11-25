@@ -1,10 +1,3 @@
-/*
- *  Filename: MID_Timer_Interface.h
- *
- *  Created on: 11-05-2024
- *      Author: Ndhieu131020@gmail.com
-*/
-
 #ifndef MID_TIMER_INTERFACE_H_
 #define MID_TIMER_INTERFACE_H_
 
@@ -54,7 +47,7 @@ typedef enum
 {
     EVENT_NONE,
     EVENT_SET,
-}Event_Typedef;
+} Event_Typedef;
 
 /*******************************************************************************
  * API

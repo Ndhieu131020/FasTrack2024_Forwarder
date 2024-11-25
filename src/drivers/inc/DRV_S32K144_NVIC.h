@@ -1,10 +1,3 @@
-/*
- * DRV_S32K144_NVIC.h
- *
- *  Created on: April 15, 2024
- *      Author: ndhieu131020
- */
-
 #ifndef DRV_S32K144_NVIC_H_
 #define DRV_S32K144_NVIC_H_
 
