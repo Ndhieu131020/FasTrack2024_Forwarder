@@ -60,7 +60,8 @@ static uint16_t Current_R_Value = 0u;
 
 /* Sensor node operation status */
 static uint8_t Node_State = IDLE;
-/* Sensor node operation status */
+
+/* PC Tool respond message timeout counter lock state */
 static uint8_t PcTool_Timer_Lock_State = UNLOCK;
 
 static ReceiveFrame_t Processing_Msg = {0};
@@ -578,8 +579,9 @@ static void App_Handle_ConfirmDataFromPCTool(void)
 {
     if(Node_State == STOP)
     {
+        /* Send wake up message */
         MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_WAKEUP_DATA);
-
+        /* Send wake up message */
         MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_WAKEUP_DATA);
 
         Node_State = RUNNING;
@@ -675,7 +677,9 @@ static void App_Handle_TimeoutEvent(void)
     {
         if(Node_State != STOP)
         {
+            /* Send stop operation */
             MID_CAN_SendCANMessage(TX_STOPOPR_DISTANCE_NODE_MB, TX_STOPOPR_DATA);
+            /* Send stop operation */
             MID_CAN_SendCANMessage(TX_STOPOPR_ROTATION_NODE_MB, TX_STOPOPR_DATA);
 
             MID_TimeoutService_CounterCmd(PC_RESPOND_DATA_GATE, DISABLE);

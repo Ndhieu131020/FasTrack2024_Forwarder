@@ -20,13 +20,13 @@ static void TimeoutCounter_Notification(void);
  * Variables
  ******************************************************************************/
 /* Array contain timeout counter of all instance */
-static uint8_t Timeout_Counter[COUNTER_INSTANCE] = {0u};
+static volatile uint8_t Timeout_Counter[COUNTER_INSTANCE] = {0u};
 
 /* Array contain counter gate of all instance */
-static Functional_State Counter_Gate[COUNTER_INSTANCE] = {DISABLE};
+static volatile Functional_State Counter_Gate[COUNTER_INSTANCE] = {DISABLE};
 
 /* Array contain timeout event of all instance */
-static Event_Typedef Timeout_Event[COUNTER_INSTANCE] = {EVENT_NONE};
+static volatile Event_Typedef Timeout_Event[COUNTER_INSTANCE] = {EVENT_NONE};
 
 /*******************************************************************************
  * Code

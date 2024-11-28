@@ -7,7 +7,7 @@
  * Definition
  ******************************************************************************/
 #define FLEXCAN_BITRATE     (500000u)
-
+#define FLEXCAN_D_LENGTH    (4u)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -55,7 +55,7 @@ static flexcan_mb_t Receive_Message;
 flexcan_mb_config_t mbCfg =
 {
     .idType = FLEXCAN_MB_ID_STD,
-    .dataLength = 8U
+    .dataLength = FLEXCAN_D_LENGTH
 };
 
 /*******************************************************************************
