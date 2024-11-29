@@ -4,6 +4,8 @@
  * Definition
  ******************************************************************************/
 
+#define NVIC_IRQS_PER_REGISTER    (32u)  /* Number of IRQs per NVIC register */
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -23,8 +25,8 @@
   */
 void NVIC_EnableIRQ(IRQn_Type IRQn)
 {
-    int8_t IRQ_Register = IRQn/32;
-    int8_t IRQ_Bit      = IRQn%32;
+    int8_t IRQ_Register = IRQn / NVIC_IRQS_PER_REGISTER;
+    int8_t IRQ_Bit      = IRQn % NVIC_IRQS_PER_REGISTER;
 
     /* Enable NVIC correspond IRQn_Type */
     NVIC->ISER[IRQ_Register] |= (uint32_t)(1<<IRQ_Bit);
@@ -37,8 +39,8 @@ void NVIC_EnableIRQ(IRQn_Type IRQn)
   */
 void NVIC_DisbleIRQ(IRQn_Type IRQn)
 {
-    int8_t IRQ_Register = IRQn/32;
-    int8_t IRQ_Bit      = IRQn%32;
+    int8_t IRQ_Register = IRQn / NVIC_IRQS_PER_REGISTER;
+    int8_t IRQ_Bit      = IRQn % NVIC_IRQS_PER_REGISTER;
 
     /* Disable NVIC correspond IRQn_Type */
     NVIC->ISER[IRQ_Register] &= ~((uint32_t)(1<<IRQ_Bit));
@@ -51,8 +53,8 @@ void NVIC_DisbleIRQ(IRQn_Type IRQn)
   */
 void NVIC_SetPendingIRQ(IRQn_Type IRQn)
 {
-    int8_t IRQ_Register = IRQn/32;
-    int8_t IRQ_Bit      = IRQn%32;
+    int8_t IRQ_Register = IRQn / NVIC_IRQS_PER_REGISTER;
+    int8_t IRQ_Bit      = IRQn % NVIC_IRQS_PER_REGISTER;
 
     /* Sets the pending status of interrupt to 1  */
     NVIC->ISPR[IRQ_Register] |= (uint32_t)(1<<IRQ_Bit);
@@ -65,8 +67,8 @@ void NVIC_SetPendingIRQ(IRQn_Type IRQn)
   */
 void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
-    int8_t IRQ_Register = IRQn/32;
-    int8_t IRQ_Bit      = IRQn%32;
+    int8_t IRQ_Register = IRQn / NVIC_IRQS_PER_REGISTER;
+    int8_t IRQ_Bit      = IRQn % NVIC_IRQS_PER_REGISTER;
 
     /* Clears the pending status of interrupt to 0 */
     NVIC->ICPR[IRQ_Register] |= (uint32_t)(1<<IRQ_Bit);
@@ -80,8 +82,8 @@ void NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 uint32_t NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
     uint32_t retVal     = 0u;
-    int8_t IRQ_Register = IRQn/32;
-    int8_t IRQ_Bit      = IRQn%32;
+    int8_t IRQ_Register = IRQn / NVIC_IRQS_PER_REGISTER;
+    int8_t IRQ_Bit      = IRQn % NVIC_IRQS_PER_REGISTER;
 
     retVal = (NVIC->ISPR[IRQ_Register] >> IRQ_Bit) & 1u;
 
@@ -106,7 +108,7 @@ void NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
   */
 uint32_t NVIC_GetPriority(IRQn_Type IRQn)
 {
-    uint8_t retVal = 0;
+    uint8_t retVal = 0u;
 
     retVal = NVIC->IP[IRQn];
 
