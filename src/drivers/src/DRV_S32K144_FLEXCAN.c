@@ -136,11 +136,14 @@ static void FLEXCAN_BitrateToTimeSeg(uint32_t bitrate, uint32_t clkFreq, flexcan
 static flexcan_freeze_mode_status_t FLEXCAN_GetFreezeMode(uint8_t instance)
 {
     FLEXCAN_Type *base = g_flexcanBase[instance];
+    flexcan_freeze_mode_status_t retVal = FLEXCAN_OUT_FREEZE_MODE;
+
     if (((base->MCR & FLEXCAN_MCR_FRZACK_MASK) >> (FLEXCAN_MCR_FRZACK_SHIFT)) == 1U)
     {
-        return FLEXCAN_IN_FREEZE_MODE;
+        retVal = FLEXCAN_IN_FREEZE_MODE;
     }
-    return FLEXCAN_OUT_FREEZE_MODE;
+
+    return retVal;
 }
 
 /**
