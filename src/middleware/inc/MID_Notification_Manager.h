@@ -12,6 +12,13 @@
 /*******************************************************************************
  * API
  ******************************************************************************/
+
+/**
+  * @brief      Enable specific interrupts to the processor
+  * @param[in]  None
+  * @param[out] None
+  * @retval     None
+  */
 void MID_EnableNotification(void);
 
 #endif /* MID_NOTIFICATION_MANAGER_H_ */

@@ -6,8 +6,10 @@
 /*******************************************************************************
  * Definition
  ******************************************************************************/
+
 #define FLEXCAN_BITRATE     (500000u)
 #define FLEXCAN_D_LENGTH    (4u)
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -46,17 +48,24 @@ static void FLEXCAN_Rx_Mb_Init(void);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+
+
+/* Static variable to store the handle for the FlexCAN module */
 static flexcan_handle_t handle;
 
+/* It holds the necessary data and control information for transmitting a CAN message */
 static flexcan_mb_t Transmit_Message;
 
+/* This structure is used to store the received message from the CAN bus */
 static flexcan_mb_t Receive_Message;
 
+/* This structure is used to configure a message buffer for transmit or receive operation */
 flexcan_mb_config_t mbCfg =
 {
-    .idType = FLEXCAN_MB_ID_STD,
-    .dataLength = FLEXCAN_D_LENGTH
+    .idType = FLEXCAN_MB_ID_STD,  /* Standard ID (11-bit) */
+    .dataLength = FLEXCAN_D_LENGTH  /* 8 bytes */
 };
+
 
 /*******************************************************************************
  * Code

@@ -16,7 +16,8 @@
 #define NVIC_IABR_COUNT    8u
 #define NVIC_IP_COUNT    240u
 
-typedef struct {
+typedef struct
+{
     __IO uint32_t ISER[NVIC_ISER_COUNT];    /* Interrupt Set Enable Register n */
     uint8_t RESERVED_0[96];
     __IO uint32_t ICER[NVIC_ICER_COUNT];    /* Interrupt Clear Enable Register n */
